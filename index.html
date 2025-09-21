@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JÄGERMEISTER Pulse</title>
+  <style>
+    /* ===== Reset & Design Tokens ===== */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--accent:#1a5c2e;--accent2:#0f3d1f;--electric:#00ff88;--fg:#2f3e35;--muted:#5b6d62;--border:#cfd8d3;--bg:#f6f6f6;--chip:#eef6f0;--glass:rgba(255,255,255,0.85);--blur:10px}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;justify-content:center;align-items:center}
+    .phone{width:390px;max-width:100%;height:100vh;background:#fff;box-shadow:0 0 30px rgba(0,0,0,.4);display:flex;flex-direction:column;overflow:hidden;border-radius:12px}
+
+    /* Screens */
+    .screen{display:none;flex-direction:column;height:100%}
+    .screen.active{display:flex}
+
+    /* Header */
+    .header{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:48px 20px 16px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .header h1{font-size:22px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* Content */
+    .content{flex:1;overflow-y:auto;background:var(--bg);padding-bottom:88px}
+
+    /* Forms */
+    .label{font-size:13px;color:var(--muted);margin-bottom:4px}
+    .input,.sel,.date,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff;color:var(--fg);transition:.2s}
+    .input:focus,.sel:focus,.date:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,92,46,.15)}
+    .row{display:flex;gap:10px;margin-bottom:12px}
+
+    /* Buttons */
+    .btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1.2;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(26,92,46,0.3)}
+    .btn:active{transform:scale(.96);filter:brightness(0.9)}
+    .btn:before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,0.3);transform:translate(-50%,-50%);transition:width 0.6s,height 0.6s}
+    .btn:active:before{width:300px;height:300px}
+    .btn:disabled{background:linear-gradient(135deg,#9fb7a9,#8aa396);cursor:not-allowed;color:#f1f4f2}
+
+    /* Lists */
+    .list{padding:15px}
+    .card{background:var(--glass);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 8px 32px rgba(0,0,0,.08);cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border-left:4px solid transparent;transform:translateZ(0)}
+    .card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.12)}
+    .card:active{transform:scale(0.98)}
+    .card.i{border-left-color:#1a5c2e}.card.c{border-left-color:#2e7d32}.card.h{border-left-color:#66bb6a}
+    .card.perfect{background:linear-gradient(135deg,#fff9e6,#fffdf7);border-left-color:#ffd700;box-shadow:0 2px 8px rgba(255,215,0,0.15);position:relative}.card.perfect:after{content:"PERFECT";position:absolute;top:8px;right:8px;background:linear-gradient(135deg,#ffd700,#ffb300);color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px}
+    .name{font-size:15px;font-weight:800;color:var(--fg);display:flex;align-items:center;gap:6px}
+    .loc{font-size:12px;color:#777;margin-top:6px;display:flex;gap:6px;align-items:center}
+
+    /* Nav */
+    .nav{position:sticky;bottom:0;background:#fff;border-top:1px solid #e0e0e0;display:flex;justify-content:space-around;padding:8px 0;z-index:3}
+    .nav .it{flex:1;text-align:center;padding:6px 0;color:#667085;font-size:12px;cursor:pointer}
+    .nav .it.active{color:var(--accent);font-weight:800}
+    .icon{width:22px;height:22px;color:currentColor;display:inline-block;vertical-align:middle}
+    .icon svg{width:100%;height:100%;display:block;fill:currentColor}
+    .nav .icon{display:block;margin:0 auto 4px}
+
+    /* FAB */
+    .fab{position:fixed;right:20px;bottom:95px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(26,92,46,.4);cursor:pointer;z-index:4}
+
+    /* Tabs */
+    .tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0}
+    .tab{flex:1;padding:12px 0;text-align:center;font-size:13px;color:#666;cursor:pointer;font-weight:700;border-bottom:2px solid transparent}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+    /* Info */
+    .info{padding:15px;background:#fff;border-bottom:1px solid #eee}
+    .row2{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5}
+    .val{font-weight:700;color:var(--fg)}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
+    .tile{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px;text-align:center;font-size:13px}
+    .tile.y{background:#e8f5e9;border-color:var(--accent)}
+    .tile.n{background:#ffebee;border-color:#d32f2f}
+
+    /* Summary */
+    .sum{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:16px;margin:12px;border-radius:12px;box-shadow:0 4px 12px rgba(26,92,46,.25)}
+    .sumg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .sumi{background:rgba(255,255,255,.1);padding:10px;border-radius:8px;text-align:center}
+    .sul{font-size:11px;opacity:.9;margin-bottom:3px}
+    .suv{font-size:18px;font-weight:900}
+
+    /* Actions */
+    .acts{padding:12px;margin:0 12px 12px;background:#f7f7f7;border-radius:10px}
+    .acti{background:#fff;border-left:3px solid var(--accent);padding:8px 10px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+
+    /* Filters */
+    .filters{padding:12px;background:#fff;border-bottom:1px solid #e0e0e0}
+    .chips{display:flex;gap:8px;padding:8px 0;overflow:auto}
+    .chip{padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:#f9fbf9;font-size:12px;color:var(--fg);cursor:pointer;transition:.2s;white-space:nowrap}
+    .chip:hover,.chip:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(26,92,46,.18);background:var(--chip);border-color:var(--accent);color:var(--accent)}
+    .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  
+    @keyframes slideDown { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    @keyframes slideUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -20px); } }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* Toggle Switch Styles */
+    .toggle-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#fff;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:8px}
+    .toggle-label{font-size:13px;color:var(--fg);font-weight:500}
+    .toggle-switch{position:relative;width:48px;height:26px;background:#ccc;border-radius:13px;cursor:pointer;transition:all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55)}
+    .toggle-switch.on{background:linear-gradient(135deg,var(--accent),var(--electric));box-shadow:0 0 20px rgba(0,255,136,0.3)}
+    .toggle-switch:before{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:2px;left:2px;transition:all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);box-shadow:0 2px 4px rgba(0,0,0,.2)}
+    .toggle-switch.on:before{transform:translateX(22px)}
+    .toggle-switch:active:before{transform:scale(0.9)}
+
+    /* Price Display */
+    .price-group{margin-bottom:16px;padding:12px;background:#f9f9f9;border-radius:8px}
+    .price-current{font-size:11px;color:#666;margin-bottom:4px}
+    .price-current strong{color:var(--accent);font-size:13px}
+
+    /* Skeleton Loader */
+    .skeleton{animation:shimmer 2s infinite;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;border-radius:8px}
+    .skeleton-card{height:80px;margin-bottom:12px}
+    .skeleton-text{height:14px;margin-bottom:8px;width:60%}
+    .skeleton-number{height:28px;width:40%;margin-bottom:4px}
+
+    /* Progress Ring */
+    .progress-ring{width:60px;height:60px;transform:rotate(-90deg)}
+    .progress-ring-circle{transition:stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1);stroke:var(--electric);stroke-width:4;fill:none;stroke-linecap:round}
+    .progress-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:900;color:var(--accent)}
+
+    /* AI Insights */
+    .ai-card{background:linear-gradient(135deg,rgba(0,255,136,0.05),rgba(26,92,46,0.05));border:1px solid rgba(0,255,136,0.2);border-radius:16px;padding:16px;margin:12px;position:relative;overflow:hidden}
+    .ai-card:before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--electric),transparent);animation:slideInRight 3s infinite}
+    .ai-badge{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--electric));color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:12px}
+    .ai-insight{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.6);border-radius:10px;margin-bottom:8px;font-size:13px;animation:slideInRight 0.5s ease backwards}
+    .ai-insight:nth-child(2){animation-delay:0.1s}
+    .ai-insight:nth-child(3){animation-delay:0.2s}
+    .ai-insight:nth-child(4){animation-delay:0.3s}
+    .ai-metric{font-weight:900;color:var(--accent);font-size:16px}
+
+    /* Count Animation */
+    .count-up{animation:countUp 0.6s ease-out;display:inline-block}
+
+    /* Haptic Feedback Simulation */
+    .haptic{position:relative}
+    .haptic:active:after{content:'';position:absolute;top:50%;left:50%;width:100%;height:100%;border:2px solid var(--electric);border-radius:inherit;transform:translate(-50%,-50%) scale(1.1);opacity:0;animation:hapticPulse 0.3s ease-out}
+    @keyframes hapticPulse{0%{opacity:0.5;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2)}}
+
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <!-- Login -->
+    <div class="screen active" id="login">
+      <div style="padding:24px 20px">
+        <h1 style="color:var(--accent);margin-bottom:12px;font-size:18px">JÄGERMEISTER Pulse</h1>
+        <p style="font-size:12px;color:#777;margin-bottom:20px">Offline demo " LocalStorage " No network requests</p>
+        <label class="label">Email</label>
+        <input class="input" id="email" value="demo@jager101.com" />
+        <label class="label">Password</label>
+        <input class="input" id="pass" type="password" value="password" />
+        <button class="btn haptic" id="loginBtn"><span class="icon" data-i="user"></span><span>Sign In</span></button>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="screen" id="main">
+      <div class="header"><h1 id="hdr">VENUES</h1></div>
+      <div class="filters" id="filters"></div>
+      <div class="content" id="content"></div>
+      <button class="fab" id="fab" title="Add"></button>
+      <div class="nav" id="nav">
+        <div class="it active" data-tab="venues"><span class="icon" data-i="location"></span>Venues</div>
+        <div class="it" data-tab="visits"><span class="icon" data-i="clipboard"></span>Visits</div>
+        <div class="it" data-tab="statistics"><span class="icon" data-i="chart"></span>Statistics</div>
+      </div>
+    </div>
+
+    <!-- Detail -->
+    <div class="screen" id="detail">
+      <div class="header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="btn" id="backDetail" style="width:auto;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.2)"><span class="icon" data-i="arrowLeft"></span>Back</button>
+          <h1 id="dName">Venue Name</h1>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-t="info">Information</div>
+        <div class="tab" data-t="status">Status</div>
+        <div class="tab" data-t="history">History</div>
+      </div>
+      <div class="content">
+        <div id="tab-info">
+          <div class="info">
+            <div class="row2"><span class="label">Region</span><span class="val" id="dRegion">-</span></div>
+            <div class="row2"><span class="label">Area</span><span class="val" id="dArea">-</span></div>
+            <div class="row2"><span class="label">Type</span><span class="val" id="dType">-</span></div>
+            <div class="row2"><span class="label">Category</span><span class="val" id="dCat">-</span></div>
+          </div>
+          <div class="info" style="margin-top:10px">
+            <div class="row2"><span class="label">Shot Price</span><span class="val" id="dShot">-</span></div>
+            <div class="row2"><span class="label">Bottle Price</span><span class="val" id="dBottle">-</span></div>
+            <div class="row2"><span class="label">Avg Monthly Sales</span><span class="val" id="dSales">-</span></div>
+          </div>
+          <div style="padding:15px"><button class="btn" id="openVisit"><span class="icon" data-i="edit"></span>Create Visit Report</button></div>
+        </div>
+        <div id="tab-status" style="display:none">
+          <div class="info" style="border:none">
+            <div class="grid" id="dStatus"></div>
+          </div>
+        </div>
+        <div id="tab-history" style="display:none">
+          <div class="list" id="dHist"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Venue -->
+    <div class="screen" id="add">
+      <div class="header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="btn" id="backAdd" style="width:auto;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.2)"><span class="icon" data-i="arrowLeft"></span>Back</button>
+          <h1>NEW VENUE</h1>
+        </div>
+      </div>
+      <div class="content">
+        <div class="info" style="border:none">
+          <div class="row" style="flex-direction:column;gap:8px">
+            <label class="label">Venue Name</label>
+            <input class="input" id="vName" placeholder="e.g. Potato Head Beach Club"/>
+            <label class="label">Location</label>
+            <select class="sel" id="vLoc"></select>
+            <label class="label">Type</label>
+            <select class="sel" id="vType"><option value="bar">Bar</option><option value="club">Club</option><option value="restaurant">Restaurant</option></select>
+            <label class="label">Category</label>
+            <select class="sel" id="vCat"><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
+            <button class="btn" id="addBtn"><span class="icon" data-i="plus"></span>Add Venue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visit Report -->
+    <div class="screen" id="visit">
+      <div class="header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="btn" id="backVisit" style="width:auto;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.2)"><span class="icon" data-i="arrowLeft"></span>Back</button>
+          <h1>VISIT REPORT</h1>
+        </div>
+      </div>
+      <div class="content">
+        <div class="info" style="border:none">
+          <div id="visitSel" class="row" style="flex-direction:column;gap:8px">
+            <label class="label">Select Venue</label>
+            <select class="sel" id="selVenue"><option value="">Select from list...</option></select>
+          </div>
+          <div class="info" style="margin-top:10px;border:none">
+            <div class="row" style="flex-direction:column;gap:8px">
+              <div class="price-group">
+                <label class="label">Shot Price (IDR)</label>
+                <div class="price-current" id="currentShot">Current: <strong>Loading...</strong></div>
+                <input class="input" id="pShot" type="number" inputmode="numeric" placeholder="Enter new price"/>
+              </div>
+              <div class="price-group">
+                <label class="label">Bottle Price (IDR)</label>
+                <div class="price-current" id="currentBottle">Current: <strong>Loading...</strong></div>
+                <input class="input" id="pBottle" type="number" inputmode="numeric" placeholder="Enter new price"/>
+              </div>
+              <div class="price-group">
+                <label class="label">Avg Monthly Sales (bottles)</label>
+                <div class="price-current" id="currentSales">Current: <strong>Loading...</strong></div>
+                <input class="input" id="pSales" type="number" inputmode="numeric" placeholder="Enter new sales figure"/>
+              </div>
+            </div>
+          </div>
+          <div class="info" style="margin-top:10px;border:none">
+            <div class="label" style="margin-bottom:12px;font-size:14px;font-weight:600">Update Venue Status</div>
+            <div style="font-size:11px;color:#999;margin-bottom:10px">Toggle switches to update current status</div>
+            <div id="toggles"></div>
+          </div>
+          <div class="info" style="margin-top:10px;border:none">
+            <label class="label">Visit Notes</label>
+            <textarea class="input" id="notes" rows="3" placeholder="Additional information..."></textarea>
+            <div style="height:10px"></div>
+            <button class="btn" id="saveVisit"><span class="icon" data-i="save"></span>Save Visit Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    // Inline SVG icon set
+    const ICONS={
+      location:'<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>',
+      clipboard:'<svg viewBox="0 0 24 24"><path d="M9 2h6a2 2 0 0 1 2 2h2a1 1 0 0 1 1 1v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1h2a2 2 0 0 1 2-2Zm0 3h6V4H9v1Z"/></svg>',
+      chart:'<svg viewBox="0 0 24 24"><path d="M4 20h16v2H2V4h2v16Zm4 0v-7h3v7H8Zm5 0V6h3v14h-3Zm5 0v-11h3v11h-3Z"/></svg>',
+      plus:'<svg viewBox="0 0 24 24"><path d="M11 11V4h2v7h7v2h-7v7h-2v-7H4v-2h7Z"/></svg>',
+      arrowLeft:'<svg viewBox="0 0 24 24"><path d="M20 11v2H8l5 5-1.4 1.4L4.2 12l7.4-7.4L13 6l-5 5h12Z"/></svg>',
+      edit:'<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm18.71-11.04a1.004 1.004 0 0 0 0-1.42l-2.5-2.5a1.004 1.004 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 2-1.66Z"/></svg>',
+      calendar:'<svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v3H2V6a2 2 0 0 1 2-2h3V2Zm15 8v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8h20Z"/></svg>',
+      user:'<svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-5 0-9 2.5-9 5v3h18v-3c0-2.5-4-5-9-5Z"/></svg>',
+      check:'<svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.6 1.6L9 19.4l12-12-1.4-1.4Z"/></svg>',
+      note:'<svg viewBox="0 0 24 24"><path d="M4 2h12l4 4v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm11 1v5h5"/></svg>',
+      star:'<svg viewBox="0 0 24 24"><path d="M12 2 9.2 8H2l5.8 4.2L5.6 20 12 16.4 18.4 20l-2.2-7.8L22 8h-7.2L12 2Z"/></svg>',
+      ok:'<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm-1 15-4-4 1.4-1.4L11 14.2l5.6-5.6L18 10Z"/></svg>',
+      x:'<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm4.3 13.9-1.4 1.4L12 13.4l-2.9 2.9-1.4-1.4 2.9-2.9-2.9-2.9 1.4-1.4L12 10.6l2.9-2.9 1.4 1.4-2.9 2.9Z"/></svg>',
+      pie:'<svg viewBox="0 0 24 24"><path d="M11 2a10 10 0 1 0 10 10h-8a2 2 0 0 1-2-2V2Z"/><path d="M13 2v8h8A10 10 0 0 0 13 2Z"/></svg>',
+      save:'<svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-3 0v6H6V3h8Z"/></svg>'
+    };
+
+    // Shortcuts
+    const $=id=>document.getElementById(id);
+    const qsa=(s,r=document)=>Array.from(r.querySelectorAll(s));
+    const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+    const fmtIDR=new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0});
+    const fmtInt=new Intl.NumberFormat('id-ID');
+
+    // State
+    let user=null; let venues=[], visits=[]; let tab='venues'; let current=null; let fromDetail=false;
+
+    // Data helpers
+    const locOptions=[
+      {v:'',l:'All Locations'},
+      {v:'bali|all',l:'Bali - All areas'},{v:'bali|Seminyak',l:'Bali - Seminyak'},{v:'bali|Canggu',l:'Bali - Canggu'},{v:'bali|Uluwatu',l:'Bali - Uluwatu'},
+      {v:'west-java|all',l:'West Java - All areas'},{v:'west-java|Jakarta',l:'West Java - Jakarta'},{v:'west-java|Bandung',l:'West Java - Bandung'},
+      {v:'east-java|all',l:'East Java - All areas'},{v:'east-java|Surabaya',l:'East Java - Surabaya'},{v:'east-java|Malang',l:'East Java - Malang'}
+    ];
+    const perfect=v=>v.lightVisibility&&v.coolingDevice&&v.standardPOSM&&v.correctMenu&&v.promo&&v.iceColdServe&&v.staffTraining;
+    const dateLocal=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d,12)};
+
+    // Storage
+    
+    // Toast notification system
+    function showToast(msg, type='success'){
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.innerHTML = `<span class="icon">${type==='success'?ICONS.check:ICONS.x}</span> ${msg}`;
+      toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:'+(type==='success'?'linear-gradient(135deg,#4caf50,#45a049)':'#f44336')+';color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.25);z-index:9999;animation:slideDown 0.3s ease';
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideUp 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
+    function save(){ try{localStorage.setItem('j101_state',JSON.stringify({venues,visits}))}catch(e){} }
+    function load(){ try{const s=JSON.parse(localStorage.getItem('j101_state')); if(s){ venues=s.venues||[]; visits=(s.visits||[]).map(v=>({...v,dateObj:v.dateObj?new Date(v.dateObj):v.date?dateLocal(v.date):new Date()})); return true; }}catch(e){} return false; }
+
+    // AI Insights Generator
+    function generateInsights(venues,perfect,total){
+      const insights=[];
+      const needsAttention=venues.filter(v=>!v.contract&&v.category!=='high-importance').length;
+      if(needsAttention>0) insights.push(`🎯 <span class="ai-metric">${needsAttention}</span> venues need immediate attention`);
+
+      const almostPerfect=venues.filter(v=>{
+        const compliance=[v.lightVisibility,v.coolingDevice,v.standardPOSM,v.correctMenu,v.promo,v.iceColdServe,v.staffTraining];
+        const count=compliance.filter(c=>c).length;
+        return count>=5&&count<7;
+      }).length;
+      if(almostPerfect>0) insights.push(`⚡ Quick win: <span class="ai-metric">${almostPerfect}</span> venues one step from Perfect`);
+
+      const revenue=venues.filter(v=>!v.contract).reduce((sum,v)=>sum+(v.avgMonthlySales||0)*2500000,0);
+      if(revenue>0) insights.push(`💰 Revenue opportunity: <span class="ai-metric">${fmtIDR.format(revenue)}</span> if contracts signed`);
+
+      const perfectPerc=Math.round((perfect/total)*100);
+      if(perfectPerc<40) insights.push(`📈 Performance boost needed: Only <span class="ai-metric">${perfectPerc}%</span> perfect outlets`);
+
+      return insights.slice(0,3);
+    }
+
+    // Animate counters
+    function animateCounters(){
+      qsa('.count-up').forEach(el=>{
+        const text=el.textContent;
+        const num=parseInt(text.replace(/[^0-9]/g,''))||0;
+        if(num>0){
+          let current=0;
+          const increment=num/30;
+          const timer=setInterval(()=>{
+            current+=increment;
+            if(current>=num){
+              current=num;
+              clearInterval(timer);
+              el.textContent=text;
+            }else{
+              el.textContent=text.includes('Rp')?fmtIDR.format(Math.floor(current)):Math.floor(current);
+            }
+          },30);
+        }
+      });
+    }
+
+    // Swipe Gesture Support
+    function addSwipeGestures(element,onLeft,onRight){
+      let startX=0,startY=0,endX=0,endY=0;
+      element.addEventListener('touchstart',e=>{
+        startX=e.changedTouches[0].screenX;
+        startY=e.changedTouches[0].screenY;
+      });
+      element.addEventListener('touchend',e=>{
+        endX=e.changedTouches[0].screenX;
+        endY=e.changedTouches[0].screenY;
+        const diffX=endX-startX;
+        const diffY=endY-startY;
+        if(Math.abs(diffX)>Math.abs(diffY)&&Math.abs(diffX)>50){
+          if(diffX>0&&onRight) onRight();
+          else if(diffX<0&&onLeft) onLeft();
+        }
+      });
+    }
+
+    // Show skeleton loaders
+    function showSkeletons(container,count){
+      let html='<div class="list">';
+      for(let i=0;i<count;i++){
+        html+=`<div class="skeleton skeleton-card" style="animation-delay:${i*0.1}s"></div>`;
+      }
+      html+='</div>';
+      container.innerHTML=html;
+    }
+
+    // Seed data
+    
+    function seedEnhanced(){
+      // Enhanced realistic demo data with real venue names
+      venues=[
+        // BALI - SEMINYAK (Premium nightlife area)
+        { id:1,name:'Potato Head Beach Club',region:'bali',area:'Seminyak',category:'must-win-image',venueType:'club',shotPrice:145000,bottlePrice:2875000,avgMonthlySales:62,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:2,name:'La Favela',region:'bali',area:'Seminyak',category:'must-win-commercial',venueType:'bar',shotPrice:115000,bottlePrice:2295000,avgMonthlySales:48,contract:true,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:false,promo:false,iceColdServe:true,staffTraining:true },
+        { id:3,name:'Ku De Ta',region:'bali',area:'Seminyak',category:'must-win-image',venueType:'club',shotPrice:155000,bottlePrice:3100000,avgMonthlySales:55,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:4,name:'Motel Mexicola',region:'bali',area:'Seminyak',category:'must-win-commercial',venueType:'bar',shotPrice:95000,bottlePrice:1950000,avgMonthlySales:72,contract:true,customBranding:true,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:true,promo:true,iceColdServe:true,staffTraining:false },
+        { id:5,name:'Mirror Bali',region:'bali',area:'Seminyak',category:'must-win-image',venueType:'club',shotPrice:165000,bottlePrice:3295000,avgMonthlySales:38,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:6,name:'Red Ruby',region:'bali',area:'Seminyak',category:'high-importance',venueType:'bar',shotPrice:85000,bottlePrice:1750000,avgMonthlySales:31,contract:false,customBranding:false,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:true,staffTraining:false },
+
+        // BALI - CANGGU (Surf & hipster scene)
+        { id:7,name:'Finns Beach Club',region:'bali',area:'Canggu',category:'must-win-image',venueType:'club',shotPrice:125000,bottlePrice:2495000,avgMonthlySales:58,contract:false,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:8,name:'Old Man\'s',region:'bali',area:'Canggu',category:'must-win-commercial',venueType:'bar',shotPrice:75000,bottlePrice:1695000,avgMonthlySales:85,contract:true,customBranding:true,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:true,iceColdServe:false,staffTraining:false },
+        { id:9,name:'The Lawn',region:'bali',area:'Canggu',category:'must-win-commercial',venueType:'bar',shotPrice:95000,bottlePrice:1995000,avgMonthlySales:43,contract:true,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:false,promo:true,iceColdServe:true,staffTraining:true },
+        { id:10,name:'Atlas Beach Club',region:'bali',area:'Canggu',category:'must-win-image',venueType:'club',shotPrice:135000,bottlePrice:2695000,avgMonthlySales:47,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:11,name:'Pretty Poison',region:'bali',area:'Canggu',category:'high-importance',venueType:'bar',shotPrice:78000,bottlePrice:1595000,avgMonthlySales:29,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false },
+        { id:12,name:'Luigi\'s Hot Pizza',region:'bali',area:'Canggu',category:'high-importance',venueType:'restaurant',shotPrice:68000,bottlePrice:1450000,avgMonthlySales:22,contract:false,customBranding:false,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:true,staffTraining:false },
+
+        // BALI - ULUWATU (Cliff-top luxury)
+        { id:13,name:'Rock Bar',region:'bali',area:'Uluwatu',category:'must-win-image',venueType:'bar',shotPrice:175000,bottlePrice:3495000,avgMonthlySales:42,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:14,name:'Single Fin',region:'bali',area:'Uluwatu',category:'must-win-commercial',venueType:'bar',shotPrice:85000,bottlePrice:1895000,avgMonthlySales:67,contract:true,customBranding:false,lightVisibility:true,coolingDevice:false,standardPOSM:true,correctMenu:true,promo:false,iceColdServe:true,staffTraining:false },
+        { id:15,name:'Omnia Dayclub',region:'bali',area:'Uluwatu',category:'must-win-image',venueType:'club',shotPrice:185000,bottlePrice:3695000,avgMonthlySales:36,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:16,name:'El Kabron',region:'bali',area:'Uluwatu',category:'must-win-commercial',venueType:'club',shotPrice:145000,bottlePrice:2895000,avgMonthlySales:31,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:false,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:17,name:'Ulu Cliffhouse',region:'bali',area:'Uluwatu',category:'must-win-image',venueType:'club',shotPrice:165000,bottlePrice:3295000,avgMonthlySales:28,contract:false,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:true,staffTraining:false },
+
+        // JAKARTA - Capital nightlife
+        { id:18,name:'Dragonfly',region:'west-java',area:'Jakarta',category:'must-win-image',venueType:'club',shotPrice:155000,bottlePrice:3095000,avgMonthlySales:78,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:19,name:'Colosseum',region:'west-java',area:'Jakarta',category:'must-win-image',venueType:'club',shotPrice:165000,bottlePrice:3295000,avgMonthlySales:65,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:20,name:'Fable',region:'west-java',area:'Jakarta',category:'must-win-commercial',venueType:'bar',shotPrice:125000,bottlePrice:2495000,avgMonthlySales:52,contract:true,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:false,correctMenu:true,promo:true,iceColdServe:true,staffTraining:false },
+        { id:21,name:'Immigrant',region:'west-java',area:'Jakarta',category:'must-win-image',venueType:'club',shotPrice:175000,bottlePrice:3495000,avgMonthlySales:71,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:22,name:'Jenja',region:'west-java',area:'Jakarta',category:'must-win-image',venueType:'club',shotPrice:185000,bottlePrice:3695000,avgMonthlySales:68,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:23,name:'Leon Goldstein',region:'west-java',area:'Jakarta',category:'high-importance',venueType:'bar',shotPrice:95000,bottlePrice:1995000,avgMonthlySales:38,contract:false,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:true,staffTraining:false },
+        { id:24,name:'Lucy in the Sky',region:'west-java',area:'Jakarta',category:'must-win-commercial',venueType:'bar',shotPrice:135000,bottlePrice:2695000,avgMonthlySales:45,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:false,iceColdServe:true,staffTraining:true },
+        { id:25,name:'Holywings',region:'west-java',area:'Jakarta',category:'high-importance',venueType:'bar',shotPrice:75000,bottlePrice:1595000,avgMonthlySales:92,contract:false,customBranding:false,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:true,staffTraining:false },
+
+        // BANDUNG - University city nightlife
+        { id:26,name:'Noah\'s Barn',region:'west-java',area:'Bandung',category:'must-win-commercial',venueType:'bar',shotPrice:65000,bottlePrice:1495000,avgMonthlySales:34,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:27,name:'Shelter',region:'west-java',area:'Bandung',category:'high-importance',venueType:'club',shotPrice:75000,bottlePrice:1695000,avgMonthlySales:28,contract:true,customBranding:false,lightVisibility:true,coolingDevice:false,standardPOSM:true,correctMenu:false,promo:true,iceColdServe:false,staffTraining:true },
+        { id:28,name:'Embassy',region:'west-java',area:'Bandung',category:'must-win-commercial',venueType:'club',shotPrice:85000,bottlePrice:1895000,avgMonthlySales:41,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:false,correctMenu:true,promo:true,iceColdServe:true,staffTraining:false },
+        { id:29,name:'Badung Cafe',region:'west-java',area:'Bandung',category:'high-importance',venueType:'bar',shotPrice:55000,bottlePrice:1295000,avgMonthlySales:19,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false },
+
+        // SURABAYA - East Java commercial hub
+        { id:30,name:'Colors Pub',region:'east-java',area:'Surabaya',category:'must-win-commercial',venueType:'bar',shotPrice:95000,bottlePrice:1995000,avgMonthlySales:45,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+        { id:31,name:'Our Bar',region:'east-java',area:'Surabaya',category:'high-importance',venueType:'bar',shotPrice:75000,bottlePrice:1695000,avgMonthlySales:38,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false },
+        { id:32,name:'Calibre',region:'east-java',area:'Surabaya',category:'must-win-commercial',venueType:'club',shotPrice:105000,bottlePrice:2195000,avgMonthlySales:52,contract:true,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:false,promo:true,iceColdServe:true,staffTraining:true },
+        { id:33,name:'Tavern Pub',region:'east-java',area:'Surabaya',category:'high-importance',venueType:'bar',shotPrice:65000,bottlePrice:1495000,avgMonthlySales:31,contract:true,customBranding:false,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:true,promo:false,iceColdServe:true,staffTraining:false },
+        { id:34,name:'Desperados',region:'east-java',area:'Surabaya',category:'must-win-commercial',venueType:'bar',shotPrice:85000,bottlePrice:1895000,avgMonthlySales:47,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:false,iceColdServe:true,staffTraining:true },
+
+        // MALANG - University town
+        { id:35,name:'Nakoa Bar',region:'east-java',area:'Malang',category:'high-importance',venueType:'bar',shotPrice:55000,bottlePrice:1295000,avgMonthlySales:22,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false },
+        { id:36,name:'The Loft',region:'east-java',area:'Malang',category:'high-importance',venueType:'bar',shotPrice:65000,bottlePrice:1495000,avgMonthlySales:18,contract:false,customBranding:false,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:true,staffTraining:false },
+        { id:37,name:'Bukit Delight',region:'east-java',area:'Malang',category:'high-importance',venueType:'restaurant',shotPrice:45000,bottlePrice:1095000,avgMonthlySales:12,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false }
+      ];
+
+      // Generate realistic visit history with actual changes
+      const visitData = [];
+      const users = ['John Smith', 'Sarah Johnson', 'Mike Chen', 'Lisa Anderson', 'David Williams', 'Emma Brown'];
+      const changeActions = [
+        ['✓ Contract Signed activated', 'Shot price updated to Rp 125,000'],
+        ['✓ Custom Branding activated', '✓ Light Visibility activated'],
+        ['✗ Promo Active deactivated', 'Bottle price updated to Rp 2,495,000'],
+        ['✓ Staff Training activated', '✓ Ice-cold Serve activated'],
+        ['✓ Standard POSM activated', 'Monthly sales updated to 45 bottles'],
+        ['✗ Correct Menu deactivated', 'Shot price updated to Rp 95,000'],
+        ['✓ Cooling Device activated', '✓ Promo Active activated'],
+        ['Routine check - no changes'],
+        ['✓ Contract Signed activated', '✓ Custom Branding activated', 'Bottle price updated to Rp 2,895,000'],
+        ['✗ Staff Training deactivated', 'Monthly sales updated to 32 bottles'],
+        ['✓ Light Visibility activated', '✓ Standard POSM activated', '✓ Correct Menu activated'],
+        ['Shot price updated to Rp 145,000', 'Bottle price updated to Rp 3,295,000'],
+        ['✓ Ice-cold Serve activated', '✓ Staff Training activated'],
+        ['✗ Custom Branding deactivated', '✗ Promo Active deactivated'],
+        ['✓ Cooling Device activated', 'Monthly sales updated to 58 bottles']
+      ];
+
+      const visitNotes = [
+        'Venue fully compliant, ready for year-end campaign',
+        'Manager requested better pricing for bulk orders',
+        'New staff needs training on ice-cold serve standards',
+        'Competitor offering better rates, need to discuss with management',
+        'Perfect outlet achieved! Celebrate with team',
+        'Cooling device needs maintenance, scheduled for next week',
+        'Contract renewal discussion scheduled for next month',
+        '',
+        'Great improvement since last visit',
+        'POSM materials running low, reorder needed',
+        'Staff very engaged with new training program',
+        '',
+        'Venue preparing for major event next month',
+        'Custom branding installation completed successfully',
+        ''
+      ];
+
+      let visitId = 1;
+      const today = new Date();
+
+      // Generate 60-80 visits over the past 45 days
+      const numVisits = Math.floor(Math.random() * 20) + 60;
+      for (let i = 0; i < numVisits; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - Math.floor(Math.random() * 45));
+        const dateStr = date.toISOString().split('T')[0];
+
+        const venueId = Math.floor(Math.random() * 37) + 1;
+        const userId = Math.floor(Math.random() * users.length);
+        const actionSet = changeActions[Math.floor(Math.random() * changeActions.length)];
+        const noteIdx = Math.floor(Math.random() * visitNotes.length);
+
+        visitData.push({
+          id: visitId++,
+          venueId: venueId,
+          date: dateStr,
+          dateObj: dateLocal(dateStr),
+          user: users[userId],
+          actions: Array.isArray(actionSet) ? actionSet : [actionSet],
+          notes: visitNotes[noteIdx]
+        });
+      }
+
+      visits = visitData.sort((a, b) => b.dateObj - a.dateObj);
+      save(); // Save the enhanced data to localStorage
+    }
+
+    function seed(){ venues=[
+      { id:1,name:'Potato Head Beach Club',region:'bali',area:'Seminyak',category:'must-win-image',venueType:'club',shotPrice:125000,bottlePrice:2500000,avgMonthlySales:45,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+      { id:2,name:'La Favela',region:'bali',area:'Seminyak',category:'must-win-commercial',venueType:'bar',shotPrice:95000,bottlePrice:2200000,avgMonthlySales:38,contract:true,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:false,promo:false,iceColdServe:true,staffTraining:true },
+      { id:3,name:'Finns Beach Club',region:'bali',area:'Canggu',category:'must-win-image',venueType:'club',shotPrice:120000,bottlePrice:2450000,avgMonthlySales:42,contract:false,customBranding:false,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+      { id:4,name:'Old Mans',region:'bali',area:'Canggu',category:'must-win-commercial',venueType:'bar',shotPrice:85000,bottlePrice:1950000,avgMonthlySales:55,contract:true,customBranding:true,lightVisibility:false,coolingDevice:true,standardPOSM:false,correctMenu:false,promo:true,iceColdServe:false,staffTraining:false },
+      { id:5,name:'Rock Bar',region:'bali',area:'Uluwatu',category:'must-win-image',venueType:'bar',shotPrice:135000,bottlePrice:2800000,avgMonthlySales:35,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+      { id:6,name:'Dragonfly',region:'west-java',area:'Jakarta',category:'must-win-image',venueType:'club',shotPrice:125000,bottlePrice:2600000,avgMonthlySales:65,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+      { id:7,name:'Noah Barn',region:'west-java',area:'Bandung',category:'must-win-commercial',venueType:'bar',shotPrice:75000,bottlePrice:1800000,avgMonthlySales:22,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true },
+      { id:8,name:'Colors Pub',region:'east-java',area:'Surabaya',category:'must-win-commercial',venueType:'bar',shotPrice:85000,bottlePrice:2000000,avgMonthlySales:35,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true }
+    ];
+    visits=[
+      { id:1,venueId:1,date:'2024-12-20',dateObj:dateLocal('2024-12-20'),user:'John Smith',actions:['Staff training done','Standard POSM placed','Perfect Outlet status achieved'],notes:'Year-end campaign ready.' },
+      { id:2,venueId:6,date:'2024-12-20',dateObj:dateLocal('2024-12-20'),user:'Sarah Johnson',actions:['Contract signed','Custom branding installed','Perfect Outlet status achieved'],notes:'Premium Jakarta placement.' },
+      { id:3,venueId:4,date:'2024-12-19',dateObj:dateLocal('2024-12-19'),user:'John Smith',actions:['Light visibility placed','Staff training done'],notes:'Improve POSM next time.' },
+      { id:4,venueId:3,date:'2024-12-18',dateObj:dateLocal('2024-12-18'),user:'John Smith',actions:['Contract negotiation','Perfect Outlet status achieved'],notes:'Contract pending approval.' }
+    ]; }
+
+    // Screens & Tabs
+    function show(id){ qsa('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); toggleFab(); if(id==='visit' && !fromDetail){ fillVisitSelect(); buildToggles(); } }
+    function toggleFab(){ const on=$('main').classList.contains('active') && tab!=='statistics'; $('fab').style.display=on?'flex':'none'; }
+    function setTab(t){ tab=t; qsa('.nav .it').forEach(i=>i.classList.toggle('active',i.dataset.tab===t)); const h=$('hdr'); if(t==='venues'){ h.textContent='VENUES'; renderVenueFilters(); renderVenues(); } else if(t==='visits'){ h.textContent='VISIT REPORTS'; renderVisitFilters(); renderVisits(); } else { h.textContent='STATISTICS'; renderStatFilters(); renderStats(); } toggleFab(); }
+
+    // Venues list
+    function renderVenueFilters(){ const f=$('filters'); const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join(''); f.innerHTML=`
+      <div class="row"><select class="sel" id="fLoc">${opts}</select></div>
+      <div class="row"><select class="sel" id="fCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
+      <select class="sel" id="fType"><option value="">All Types</option><option value="bar">Bar</option><option value="club">Club</option><option value="restaurant">Restaurant</option></select></div>
+      <div class="row"><input class="input" id="fQuery" placeholder="Search by venue name..."/></div>`;
+      ['fLoc','fCat','fType'].forEach(id=>$(id).addEventListener('change',filterVenues)); $('fQuery').addEventListener('input',filterVenues);
+    }
+    function filterVenues(){ const loc=$('fLoc').value,cat=$('fCat').value,typ=$('fType').value,q=($('fQuery').value||'').toLowerCase(); let arr=venues.filter(v=>v.name.toLowerCase().includes(q)); if(loc){ const [r,a]=loc.split('|'); arr=arr.filter(v=>a==='all'?v.region===r:(v.region===r&&v.area===a)); } if(cat) arr=arr.filter(v=>v.category===cat); if(typ) arr=arr.filter(v=>v.venueType===typ); renderVenues(arr); }
+    function renderVenues(arr){ const c=$('content'); const data=arr||venues;
+      // Show skeleton loader briefly
+      showSkeletons(c,3);
+      setTimeout(()=>{
+        if(!data.length){ c.innerHTML='<p style="text-align:center;color:#999;padding:40px">No venues</p>'; return;}
+        let html='<div class="list">'; data.forEach(v=>{ const k=v.category==='must-win-image'?'i':v.category==='must-win-commercial'?'c':'h'; html+=`<div class="card ${k}${perfect(v)?' perfect':''}" data-id="${v.id}">`+
+      `<div class="name">${perfect(v)?`<span class="icon">${ICONS.star}</span>`:''}${esc(v.name)}</div>`+
+      `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(v.area)}, ${esc(v.region.replace('-', ' ').toUpperCase())}</div>`+
+      `</div>`; }); html+='</div>'; c.innerHTML=html; qsa('.card',c).forEach(el=>el.addEventListener('click',()=>openDetail(Number(el.dataset.id))));
+      },150); }
+
+    // Visits
+    function renderVisitFilters(){ const f=$('filters'); const t=new Date(),m=new Date(); m.setMonth(t.getMonth()-1); const to=d=>d.toISOString().split('T')[0]; f.innerHTML=`
+      <div class="row"><input type="date" class="date" id="dFrom" value="${to(m)}"><input type="date" class="date" id="dTo" value="${to(t)}"></div>
+      <div class="chips"><button class="chip" data-p="week">Week</button><button class="chip active" data-p="month">Month</button><button class="chip" data-p="quarter">Quarter</button><button class="chip" data-p="year">Year</button><button class="chip" data-p="all">All</button></div>`;
+      $('dFrom').addEventListener('change',renderVisits); $('dTo').addEventListener('change',renderVisits); qsa('.chip',f).forEach(b=>b.addEventListener('click',()=>setPeriod(b.dataset.p,b)));
+    }
+    function setPeriod(p,btn){ qsa('.chip').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); const t=new Date(); let f=new Date(); if(p==='week') f.setDate(t.getDate()-7); else if(p==='month') f.setMonth(t.getMonth()-1); else if(p==='quarter') f.setMonth(t.getMonth()-3); else if(p==='year') f.setFullYear(t.getFullYear()-1); else f=new Date('2024-01-01'); $('dFrom').value=f.toISOString().split('T')[0]; $('dTo').value=t.toISOString().split('T')[0]; renderVisits(); }
+    function renderVisits(){ const from=new Date($('dFrom').value), to=new Date($('dTo').value); to.setHours(23,59,59,999); const list=visits.filter(v=>v.dateObj>=from&&v.dateObj<=to); const c=$('content'); const s={total:list.length,venues:new Set(list.map(v=>v.venueId)).size,contracts:list.filter(v=>v.actions?.some(a=>/Contract/i.test(a))).length,trainings:list.filter(v=>v.actions?.some(a=>/training/i.test(a))).length}; let html=`<div class="sum"><div class="sumg">`+
+      `<div class="sumi"><div class="sul">Total Visits</div><div class="suv">${s.total}</div></div>`+
+      `<div class="sumi"><div class="sul">Unique Venues</div><div class="suv">${s.venues}</div></div>`+
+      `<div class="sumi"><div class="sul">Contracts Signed</div><div class="suv">${s.contracts}</div></div>`+
+      `<div class="sumi"><div class="sul">Staff Trainings</div><div class="suv">${s.trainings}</div></div>`+
+      `</div></div><div class="acts"><div class="acti"><span>Contracts Signed</span><strong style="color:var(--accent)">${s.contracts}</strong></div><div class="acti"><span>Staff Trainings</span><strong style="color:var(--accent)">${s.trainings}</strong></div><div class="acti"><span>Promos Started</span><strong style="color:var(--accent)">${list.filter(v=>v.actions?.some(a=>/Promo/i.test(a))).length}</strong></div></div><div class="list">`;
+      list.forEach(v=>{ const ven=venues.find(x=>x.id===v.venueId); if(!ven) return; html+=`<div class="card" data-id="${ven.id}">`+
+        `<div style="font-size:11px;color:#999;display:flex;gap:6px;align-items:center"><span class="icon">${ICONS.calendar}</span>${v.date}</div>`+
+        `<div class="name">${esc(ven.name)}</div>`+
+        `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(ven.area)}, ${esc(ven.region.toUpperCase())}</div>`+
+        `<div style="margin-top:8px;font-size:13px;color:#666">${(v.actions||[]).map(a=>`<span class="icon">${ICONS.check}</span> ${esc(a)}`).join('<br>')}</div>`+
+        (v.notes? `<div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px;font-size:12px"><span class="icon">${ICONS.note}</span> ${esc(v.notes)}</div>`:'')+
+      `</div>`; }); html+='</div>'; c.innerHTML=html; qsa('.card',c).forEach(el=>el.addEventListener('click',()=>openDetail(Number(el.dataset.id)))); }
+
+    // Statistics
+    function renderStatFilters(){ const f=$('filters'); const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join(''); f.innerHTML=`
+      <div class="row"><select class="sel" id="sLoc">${opts}</select></div>
+      <div class="row"><select class="sel" id="sCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
+      <select class="sel" id="sPerf"><option value="">All Outlets</option><option value="perfect">Perfect Outlets Only</option><option value="not">Non-Perfect</option></select></div>`;
+      ['sLoc','sCat','sPerf'].forEach(id=>$(id).addEventListener('change',renderStats));
+    }
+    function renderStats(){ const c=$('content'); const loc=$('sLoc')?.value||'',cat=$('sCat')?.value||'',pf=$('sPerf')?.value||''; let arr=venues.slice(); if(loc){ const [r,a]=loc.split('|'); arr=arr.filter(v=>a==='all'?v.region===r:(v.region===r&&v.area===a)); } if(cat) arr=arr.filter(v=>v.category===cat); if(pf==='perfect') arr=arr.filter(perfect); else if(pf==='not') arr=arr.filter(v=>!perfect(v)); const total=arr.length; if(!total){ c.innerHTML='<p style="text-align:center;color:#999;padding:40px">No venues match the selected filters</p>'; return; } const p=arr.filter(perfect).length; const avgShot=Math.round(arr.reduce((s,v)=>s+(v.shotPrice||0),0)/total); const avgBottle=Math.round(arr.reduce((s,v)=>s+(v.bottlePrice||0),0)/total);
+      let html=`<div class="sum"><div class="sumg">`+
+        `<div class="sumi"><div class="sul">Perfect Outlets</div><div class="suv count-up">${p}</div></div>`+
+        `<div class="sumi"><div class="sul">Total Venues</div><div class="suv count-up">${total}</div></div>`+
+        `<div class="sumi"><div class="sul">Avg Shot Price</div><div class="suv count-up">${fmtIDR.format(avgShot)}</div></div>`+
+        `<div class="sumi"><div class="sul">Avg Bottle Price</div><div class="suv count-up">${fmtIDR.format(avgBottle)}</div></div>`+
+      `</div></div>`; const k=[ ['Contracts','contract'],['Custom Branding','customBranding'],['Light Visibility','lightVisibility'],['Cooling Device','coolingDevice'],['Standard POSM','standardPOSM'],['Correct Menu','correctMenu'],['Promo Active','promo'],['Ice-cold Serve','iceColdServe'],['Staff Training','staffTraining'] ]; html+='<div class="list">'; k.forEach(([lab,key])=>{ const val=arr.filter(v=>v[key]).length; const perc=Math.round((val/total)*100); const color=perc>=80?'var(--electric)':perc>=50?'#ffa726':'#ef5350';
+        html+=`<div class="card" style="position:relative;padding:20px">`+
+          `<div style="display:flex;align-items:center;gap:16px">`+
+            `<div style="position:relative;width:60px;height:60px">`+
+              `<svg class="progress-ring" viewBox="0 0 60 60">`+
+                `<circle cx="30" cy="30" r="26" stroke="#e0e0e0" stroke-width="4" fill="none"/>`+
+                `<circle class="progress-ring-circle" cx="30" cy="30" r="26" stroke="${color}" stroke-dasharray="${163.4}" stroke-dashoffset="${163.4*(1-perc/100)}"/>`+
+              `</svg>`+
+              `<div class="progress-label">${perc}%</div>`+
+            `</div>`+
+            `<div style="flex:1">`+
+              `<div style="font-weight:700;color:var(--fg);font-size:14px">${lab}</div>`+
+              `<div style="font-size:12px;color:#999;margin-top:2px">${val} of ${total} venues</div>`+
+            `</div>`+
+          `</div>`+
+        `</div>`; }); html+='</div>'; c.innerHTML=html; animateCounters(); }
+
+    // Detail
+    function openDetail(id){ current=id; const v=venues.find(x=>x.id===id); if(!v) return; $('dName').textContent=v.name; $('dRegion').textContent=v.region; $('dArea').textContent=v.area; $('dType').textContent=v.venueType; $('dCat').textContent=v.category; $('dShot').textContent=v.shotPrice?fmtIDR.format(v.shotPrice):'-'; $('dBottle').textContent=v.bottlePrice?fmtIDR.format(v.bottlePrice):'-'; $('dSales').textContent=v.avgMonthlySales?fmtInt.format(v.avgMonthlySales)+' bottles':'-'; const pairs=[ ['Contract',v.contract],['Custom Branding',v.customBranding],['Light Visibility',v.lightVisibility],['Cooling Device',v.coolingDevice],['Standard POSM',v.standardPOSM],['Correct Menu',v.correctMenu],['Promo Active',v.promo],['Ice-cold Serve',v.iceColdServe],['Staff Training',v.staffTraining] ]; $('dStatus').innerHTML=pairs.map(([l,val])=>`<div class="tile ${val?'y':'n'}">${val?`<span class="icon">${ICONS.ok}</span>`:`<span class="icon">${ICONS.x}</span>`} ${l}</div>`).join(''); const hist=visits.filter(r=>r.venueId===id).sort((a,b)=>b.dateObj-a.dateObj); $('dHist').innerHTML= hist.length? hist.map(h=>`<div class="card">`+
+        `<div style="font-size:11px;color:#999;display:flex;gap:6px;align-items:center"><span class="icon">${ICONS.calendar}</span>${h.date}</div>`+
+        `<div class="loc" style="margin-top:4px"><span class="icon">${ICONS.user}</span>${esc(h.user)}</div>`+
+        (h.actions?.length? `<div style="margin-top:6px;font-size:13px">${h.actions.map(a=>{
+          const isDeactivation = a.includes('deactivated');
+          const color = isDeactivation ? '#c62828' : '#2e7d32';
+          return `<div style="color:${color};margin:2px 0">${esc(a)}</div>`;
+        }).join('')}</div>`:'')+
+        (h.notes? `<div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px;font-size:12px"><span class="icon">${ICONS.note}</span> ${esc(h.notes)}</div>`:'')+
+      `</div>`).join('') : '<p style="padding:12px;color:#777">No history yet</p>'; qsa('.tab').forEach(t=>t.classList.remove('active')); qsa('[id^=tab-]').forEach(e=>e.style.display='none'); qsa('.tab')[0].classList.add('active'); $('tab-info').style.display='block'; show('detail'); }
+    qsa('.tab').forEach(t=>t.addEventListener('click',()=>{ qsa('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); qsa('[id^=tab-]').forEach(e=>e.style.display='none'); $(`tab-${t.dataset.t}`).style.display='block'; }));
+
+    // Visit helpers
+    function fillVisitSelect(){
+      const s=$('selVenue');
+      s.innerHTML='<option value="">Select from list...</option>'+venues.map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join('');
+      s.addEventListener('change', function() {
+        const venueId = Number(this.value);
+        if (venueId) {
+          const venue = venues.find(v => v.id === venueId);
+          if (venue) {
+            $('currentShot').innerHTML = `Current: <strong>${venue.shotPrice ? fmtIDR.format(venue.shotPrice) : 'Not set'}</strong>`;
+            $('currentBottle').innerHTML = `Current: <strong>${venue.bottlePrice ? fmtIDR.format(venue.bottlePrice) : 'Not set'}</strong>`;
+            $('currentSales').innerHTML = `Current: <strong>${venue.avgMonthlySales ? venue.avgMonthlySales + ' bottles' : 'Not set'}</strong>`;
+            // Update toggle states based on venue
+            qsa('.toggle-switch').forEach(toggle => {
+              const key = toggle.getAttribute('data-key');
+              if (venue[key]) {
+                toggle.classList.add('on');
+              } else {
+                toggle.classList.remove('on');
+              }
+            });
+          }
+        } else {
+          $('currentShot').innerHTML = 'Current: <strong>Select a venue</strong>';
+          $('currentBottle').innerHTML = 'Current: <strong>Select a venue</strong>';
+          $('currentSales').innerHTML = 'Current: <strong>Select a venue</strong>';
+        }
+      });
+    }
+    function buildToggles(){
+      const keys=[
+        {key:'contract',label:'Contract Signed'},
+        {key:'customBranding',label:'Custom Branding'},
+        {key:'lightVisibility',label:'Light Visibility'},
+        {key:'coolingDevice',label:'Cooling Device'},
+        {key:'standardPOSM',label:'Standard POSM'},
+        {key:'correctMenu',label:'Correct Menu'},
+        {key:'promo',label:'Promo Active'},
+        {key:'iceColdServe',label:'Ice-cold Serve'},
+        {key:'staffTraining',label:'Staff Training'}
+      ];
+      $('toggles').innerHTML=keys.map(k=>
+        `<div class="toggle-item">
+          <span class="toggle-label">${k.label}</span>
+          <div class="toggle-switch" data-key="${k.key}"></div>
+        </div>`
+      ).join('');
+      qsa('.toggle-switch').forEach(t=>t.addEventListener('click',function(){
+        this.classList.toggle('on');
+      }));
+      // Clear notes field
+      if($('notes')) $('notes').value = '';
+      // Clear price inputs
+      if($('pShot')) $('pShot').value = '';
+      if($('pBottle')) $('pBottle').value = '';
+      if($('pSales')) $('pSales').value = '';
+      // Set initial states if venue is selected
+      if(current) {
+        const venue = venues.find(v => v.id === current);
+        if(venue) {
+          qsa('.toggle-switch').forEach(toggle => {
+            const key = toggle.getAttribute('data-key');
+            if(venue[key]) toggle.classList.add('on');
+          });
+          // Update price displays
+          $('currentShot').innerHTML = `Current: <strong>${venue.shotPrice ? fmtIDR.format(venue.shotPrice) : 'Not set'}</strong>`;
+          $('currentBottle').innerHTML = `Current: <strong>${venue.bottlePrice ? fmtIDR.format(venue.bottlePrice) : 'Not set'}</strong>`;
+          $('currentSales').innerHTML = `Current: <strong>${venue.avgMonthlySales ? venue.avgMonthlySales + ' bottles' : 'Not set'}</strong>`;
+        }
+      }
+    }
+    // Actions removed - using only status toggles now
+    function buildActions(){ /* Deprecated - using venue status toggles instead */ }
+
+    // Add / Save
+    function addVenue(){ const name=$('vName').value.trim(); const loc=$('vLoc').value; if(!name||!loc){ showToast('Please enter name and location', 'error'); return;} const [region,area]=loc.split('|'); const id=venues.reduce((m,v)=>Math.max(m,v.id),0)+1; const v={ id,name,region,area,category:$('vCat').value,venueType:$('vType').value,shotPrice:0,bottlePrice:0,avgMonthlySales:0,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false }; venues.push(v); save(); setTab('venues'); }
+    function saveVisit(){
+      const vid=Number($('selVenue').value||current||0);
+      if(!vid){ showToast('Please select a venue', 'error'); return;}
+      const v=venues.find(x=>x.id===vid);
+      if(!v){ showToast('Venue not found', 'error'); return; }
+
+      // Update prices if provided
+      const shot=Number($('pShot').value)||null;
+      const bottle=Number($('pBottle').value)||null;
+      const sales=Number($('pSales').value)||null;
+      if(shot) v.shotPrice=shot;
+      if(bottle) v.bottlePrice=bottle;
+      if(sales) v.avgMonthlySales=sales;
+
+      // Track what changed
+      const oldStates = {};
+      const newStates = {};
+      const changes = [];
+
+      qsa('.toggle-switch').forEach(t=>{
+        const k=t.getAttribute('data-key');
+        const label = t.parentElement.querySelector('.toggle-label').textContent;
+        oldStates[k] = v[k];
+        newStates[k] = t.classList.contains('on');
+        v[k] = newStates[k];
+
+        // Track changes
+        if(oldStates[k] !== newStates[k]){
+          if(newStates[k]){
+            changes.push(`${label} activated`);
+          } else {
+            changes.push(`${label} deactivated`);
+          }
+        }
+      });
+
+      // Add price changes if any
+      if(shot && v.shotPrice !== shot) changes.push(`Shot price updated to ${fmtIDR.format(shot)}`);
+      if(bottle && v.bottlePrice !== bottle) changes.push(`Bottle price updated to ${fmtIDR.format(bottle)}`);
+      if(sales && v.avgMonthlySales !== sales) changes.push(`Monthly sales updated to ${sales} bottles`);
+
+      const notes=$('notes').value.trim();
+      const now=new Date();
+      const rec={
+        id:(visits.reduce((m,r)=>Math.max(m,r.id),0)+1),
+        venueId:vid,
+        date:now.toISOString().split('T')[0],
+        dateObj:new Date(now.getFullYear(),now.getMonth(),now.getDate(),12),
+        user:user?.name||'Demo User',
+        actions:changes.length > 0 ? changes : ['Routine check - no changes'],
+        notes
+      };
+      visits.unshift(rec);
+      save();
+      showToast('Visit report saved successfully!', 'success');
+      if(fromDetail){ openDetail(vid); } else { setTab('visits'); }
+    }
+
+    // Nav & events
+    function setupNav(){
+      qsa('#nav .it').forEach(n=>n.addEventListener('click',()=>setTab(n.dataset.tab)));
+      $('fab').addEventListener('click',()=>{
+        if(tab==='venues'){
+          $('vLoc').innerHTML=locOptions.filter(o=>o.v).map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+          show('add');
+        } else if(tab==='visits'){
+          fromDetail=false;
+          show('visit');
+          fillVisitSelect();
+          buildToggles();
+        }
+      });
+      $('backDetail').addEventListener('click',()=>show('main'));
+      $('backAdd').addEventListener('click',()=>show('main'));
+      $('backVisit').addEventListener('click',()=>{
+        if(fromDetail&&current){ openDetail(current); } else { show('main'); }
+      });
+      $('openVisit').addEventListener('click',()=>{
+        fromDetail=true;
+        show('visit');
+        $('visitSel').style.display='none';
+        $('selVenue').innerHTML=`<option value="${current}">Current: ${esc(venues.find(v=>v.id===current).name)}</option>`;
+        buildToggles();
+      });
+      $('addBtn').addEventListener('click',addVenue);
+      $('saveVisit').addEventListener('click',saveVisit);
+    }
+
+    // Icons injection (safe, after DOM is ready)
+    function initIcons(){ qsa('[data-i]').forEach(el=>{ el.innerHTML=ICONS[el.getAttribute('data-i')]||''; }); const f=$('fab'); if(f) f.innerHTML=ICONS.plus; }
+
+    // Login
+    
+    function login(){
+      console.log('Login function called');
+      try {
+        const btn = $('loginBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="icon">'+ICONS.user+'</span><span>Authenticating...</span>';
+
+        // Simulate authentication delay
+        setTimeout(() => {
+          console.log('Authentication timeout executing...');
+          user={name:'Demo User',email:($('email').value||'demo@jager101.com').trim()};
+          const had=load();
+          console.log('Data loaded from storage:', had);
+          if(!had) {
+            console.log('No existing data, seeding...');
+            seedEnhanced();
+          }
+
+          btn.disabled = false;
+          btn.innerHTML = '<span class="icon">'+ICONS.user+'</span><span>Sign In</span>';
+          show('main');
+          setTab('venues');
+
+          // Show welcome message
+          setTimeout(() => showToast('Welcome to JÄGERMEISTER Pulse'), 300);
+        }, 800);
+      } catch(e) {
+        console.error('Login error:', e);
+      }
+    }
+
+    // Init
+    function init(){
+      console.log('Initializing app...');
+      try {
+        setupNav();
+        initIcons();
+        const loginBtn = $('loginBtn');
+        if(loginBtn) {
+          loginBtn.addEventListener('click', login);
+          console.log('Login button handler attached');
+        } else {
+          console.error('Login button not found!');
+        }
+        $('pass').addEventListener('keydown',e=>{ if(e.key==='Enter') login(); });
+        console.log('App initialized successfully');
+      } catch(e) {
+        console.error('Init error:', e);
+      }
+    }
+
+    // Ensure DOM is ready
+    if(document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+    // Optional: developer smoke-tests (disabled by default to avoid auto navigation)
+    function runTests(){ try{
+      show('login'); login(); console.assert($('main').classList.contains('active'),'Login opens main');
+      setTab('visits'); console.assert($('content').innerHTML.includes('Total Visits'),'Visits summary');
+      setTab('statistics'); console.assert($('content').innerHTML.includes('Perfect Outlets'),'Stats render');
+      setTab('venues'); const before=venues.length; $('fab').click(); $('vName').value='Test Venue'; const loc=$('vLoc'); if(loc.options.length){ loc.value=loc.options[0].value;} $('addBtn').click(); console.assert(venues.length===before+1,'Venue added');
+    }catch(e){ console.error('[tests failed]',e); }
+    }
+    // runTests(); // Disabled for production
+  })();
+  </script>
+</body>
+</html>
