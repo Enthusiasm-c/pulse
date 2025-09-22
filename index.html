@@ -39,6 +39,43 @@
     .btn:active:before{width:300px;height:300px}
     .btn:disabled{background:linear-gradient(135deg,#9fb7a9,#8aa396);cursor:not-allowed;color:#f1f4f2}
 
+    /* Role Selection Buttons */
+    .role-btn{width:100%;padding:20px;background:#fff;border:2px solid var(--border);border-radius:16px;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);margin-bottom:12px;text-align:left}
+    .role-btn:hover{border-color:var(--accent);background:var(--chip);transform:translateY(-2px);box-shadow:0 8px 20px rgba(26,92,46,0.15)}
+    .role-btn:active{transform:scale(0.98)}
+    .role-btn-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+    .role-btn-content{flex:1}
+    .role-btn-title{font-size:18px;font-weight:800;color:var(--fg);margin-bottom:4px}
+    .role-btn-desc{font-size:13px;color:var(--muted);line-height:1.4}
+
+    /* Collapsible Section */
+    .collapsible{margin-top:24px;border-top:1px solid var(--border);padding-top:16px}
+    .collapsible-header{cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;padding:8px;transition:color 0.2s}
+    .collapsible-header:hover{color:var(--accent)}
+    .collapsible-content{max-height:0;overflow:hidden;transition:max-height 0.3s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;opacity:0}
+    .collapsible.open .collapsible-content{max-height:500px;opacity:1;padding-top:16px}
+    .collapsible-arrow{transition:transform 0.3s}
+    .collapsible.open .collapsible-arrow{transform:rotate(180deg)}
+
+    /* Advanced Filters */
+    .filter-section{padding:12px;background:#fff;border-bottom:1px solid #e0e0e0}
+    .filter-row{display:flex;gap:10px;margin-bottom:10px}
+    .filter-col{flex:1}
+    .filter-label{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+
+    /* Settings Redesign */
+    .settings-section{background:#fff;border-radius:16px;margin:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .settings-section-title{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .settings-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f5f5f5}
+    .settings-row:last-child{border-bottom:none}
+    .settings-label{font-size:13px;color:var(--muted);font-weight:500}
+    .settings-value{font-size:13px;font-weight:600;color:var(--fg)}
+    .settings-input{flex:1;max-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px}
+    .settings-divider{height:1px;background:var(--border);margin:20px 0}
+    .settings-footer{padding:16px;background:#f9f9f9;margin:-16px;margin-top:20px;border-radius:0 0 16px 16px}
+    .btn-icon-gradient{background:linear-gradient(135deg,var(--accent),var(--electric));padding:12px 20px;border-radius:10px;font-size:14px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,255,136,0.2)}
+    .btn-signout{background:linear-gradient(135deg,#dc2626,#b91c1c);width:100%;justify-content:center;font-size:14px;padding:12px}
+
     /* Lists */
     .list{padding:15px}
     .card{background:var(--glass);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 8px 32px rgba(0,0,0,.08);cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border-left:4px solid transparent;transform:translateZ(0)}
@@ -155,27 +192,66 @@
     <!-- Login -->
     <div class="screen active" id="login">
       <div style="padding:24px 20px">
-        <h1 style="color:var(--accent);margin-bottom:12px;font-size:18px">JÄGERMEISTER Pulse</h1>
-        <p style="font-size:12px;color:#777;margin-bottom:20px">Offline demo " LocalStorage " No network requests</p>
-        <label class="label">Email</label>
-        <input class="input" id="email" value="demo@jager101.com" />
-        <label class="label">Password</label>
-        <input class="input" id="pass" type="password" value="password" />
-        <button class="btn haptic" id="loginBtn"><span class="icon" data-i="user"></span><span>Sign In</span></button>
+        <div style="text-align:center;margin-bottom:32px">
+          <h1 style="color:var(--accent);margin-bottom:8px;font-size:24px;font-weight:900">JÄGERMEISTER Pulse</h1>
+          <p style="font-size:13px;color:var(--muted)">Field Force Management System</p>
+        </div>
+
+        <div style="margin-bottom:24px">
+          <h2 style="font-size:16px;font-weight:700;color:var(--fg);margin-bottom:16px;text-align:center">Choose Your Role</h2>
+
+          <button class="role-btn" id="managerQuickLogin">
+            <div class="role-btn-icon">
+              <span class="icon" style="width:28px;height:28px" data-i="dashboard"></span>
+            </div>
+            <div class="role-btn-content">
+              <div class="role-btn-title">Sign in as Manager</div>
+              <div class="role-btn-desc">Access all regions, view analytics, manage team performance</div>
+            </div>
+          </button>
+
+          <button class="role-btn" id="ambassadorQuickLogin">
+            <div class="role-btn-icon">
+              <span class="icon" style="width:28px;height:28px" data-i="user"></span>
+            </div>
+            <div class="role-btn-content">
+              <div class="role-btn-title">Sign in as Ambassador</div>
+              <div class="role-btn-desc">Manage venues, submit visit reports, track your performance</div>
+            </div>
+          </button>
+        </div>
+
+        <div class="collapsible" id="customLoginSection">
+          <div class="collapsible-header">
+            <span>Custom Login</span>
+            <span class="collapsible-arrow">▼</span>
+          </div>
+          <div class="collapsible-content">
+            <label class="label">Email</label>
+            <input class="input" id="email" placeholder="Enter your email" style="margin-bottom:12px" />
+            <label class="label">Password</label>
+            <input class="input" id="pass" type="password" placeholder="Enter your password" style="margin-bottom:16px" />
+            <button class="btn haptic" id="loginBtn"><span class="icon" data-i="user"></span><span>Sign In</span></button>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;padding:12px;background:#f9f9f9;border-radius:10px;font-size:11px;color:#999;text-align:center">
+          Demo Mode • Offline • LocalStorage
+        </div>
       </div>
     </div>
 
     <!-- Main -->
     <div class="screen" id="main">
-      <div class="header"><h1 id="hdr">VENUES</h1></div>
+      <div class="header">
+        <h1 id="hdr">VENUES</h1>
+        <div id="roleIndicator" style="font-size:11px;color:rgba(255,255,255,0.9);margin-top:4px"></div>
+      </div>
       <div class="filters" id="filters"></div>
       <div class="content" id="content"></div>
       <button class="fab" id="fab" title="Add"></button>
       <div class="nav" id="nav">
-        <div class="it active" data-tab="venues"><span class="icon" data-i="location"></span>Venues</div>
-        <div class="it" data-tab="visits"><span class="icon" data-i="clipboard"></span>Visits</div>
-        <div class="it" data-tab="statistics"><span class="icon" data-i="chart"></span>Statistics</div>
-        <div class="it" data-tab="settings"><span class="icon" data-i="settings"></span>Settings</div>
+        <!-- Navigation will be dynamically populated based on role -->
       </div>
     </div>
 
@@ -205,7 +281,7 @@
             <div class="row2"><span class="label">Bottle Price</span><span class="val" id="dBottle">-</span></div>
             <div class="row2"><span class="label">Avg Monthly Sales</span><span class="val" id="dSales">-</span></div>
           </div>
-          <div style="padding:15px"><button class="btn" id="openVisit"><span class="icon" data-i="edit"></span>Create Visit Report</button></div>
+          <div id="visitButtonContainer" style="padding:15px"></div>
         </div>
         <div id="tab-status" style="display:none">
           <div class="info" style="border:none">
@@ -311,7 +387,9 @@
       x:'<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm4.3 13.9-1.4 1.4L12 13.4l-2.9 2.9-1.4-1.4 2.9-2.9-2.9-2.9 1.4-1.4L12 10.6l2.9-2.9 1.4 1.4-2.9 2.9Z"/></svg>',
       pie:'<svg viewBox="0 0 24 24"><path d="M11 2a10 10 0 1 0 10 10h-8a2 2 0 0 1-2-2V2Z"/><path d="M13 2v8h8A10 10 0 0 0 13 2Z"/></svg>',
       save:'<svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-3 0v6H6V3h8Z"/></svg>',
-      settings:'<svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a8 8 0 0 0 .2-2 8 8 0 0 0-.2-2l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.4 7.4 0 0 0-1.7-1l-.4-2.7a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6l2.1 1.6a8 8 0 0 0-.2 2 8 8 0 0 0 .2 2l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5a.5.5 0 0 0 .6.2l2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.7a.5.5 0 0 0 .5.4h4a.5.5 0 0 0 .5-.4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1a.5.5 0 0 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6l-2.1-1.6Z"/></svg>'
+      settings:'<svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a8 8 0 0 0 .2-2 8 8 0 0 0-.2-2l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.4 7.4 0 0 0-1.7-1l-.4-2.7a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6l2.1 1.6a8 8 0 0 0-.2 2 8 8 0 0 0 .2 2l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5a.5.5 0 0 0 .6.2l2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.7a.5.5 0 0 0 .5.4h4a.5.5 0 0 0 .5-.4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1a.5.5 0 0 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6l-2.1-1.6Z"/></svg>',
+      dashboard:'<svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z"/></svg>',
+      team:'<svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5s-3 1.34-3 3 1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg>'
     };
 
     // Shortcuts
@@ -323,13 +401,15 @@
 
     // State
     let user=null; let venues=[], visits=[]; let tab='venues'; let current=null; let fromDetail=false; let selectedRegion='all';
+    let userRole='ambassador'; // 'manager' or 'ambassador'
+    let userRegion=''; // For ambassadors, their assigned region
 
     // Data helpers
     const locOptions=[
       {v:'',l:'All Locations'},
-      {v:'bali|all',l:'Bali - All areas'},{v:'bali|Seminyak',l:'Bali - Seminyak'},{v:'bali|Canggu',l:'Bali - Canggu'},{v:'bali|Uluwatu',l:'Bali - Uluwatu'},
-      {v:'west-java|all',l:'West Java - All areas'},{v:'west-java|Jakarta',l:'West Java - Jakarta'},{v:'west-java|Bandung',l:'West Java - Bandung'},
-      {v:'east-java|all',l:'East Java - All areas'},{v:'east-java|Surabaya',l:'East Java - Surabaya'},{v:'east-java|Malang',l:'East Java - Malang'}
+      {v:'bali|Seminyak',l:'Bali - Seminyak'},{v:'bali|Canggu',l:'Bali - Canggu'},{v:'bali|Uluwatu',l:'Bali - Uluwatu'},
+      {v:'west-java|Jakarta',l:'West Java - Jakarta'},{v:'west-java|Bandung',l:'West Java - Bandung'},
+      {v:'east-java|Surabaya',l:'East Java - Surabaya'},{v:'east-java|Malang',l:'East Java - Malang'}
     ];
     const perfect=v=>v.lightVisibility&&v.coolingDevice&&v.standardPOSM&&v.correctMenu&&v.promo&&v.iceColdServe&&v.staffTraining;
     const dateLocal=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d,12)};
@@ -373,6 +453,8 @@
 
     function save(){
       try{
+        // FIXED: Don't save userRole and userRegion to prevent role conflicts between users
+        // These should be determined fresh on each login based on email
         localStorage.setItem('j101_state',JSON.stringify({venues,visits,selectedRegion,user}));
       }catch(e){
         console.error('Failed to save data:', e);
@@ -389,6 +471,11 @@
           if(s.user){
             user={...user,...s.user};
           }
+          // FIXED: Don't overwrite the current user's role and region
+          // Only load role/region if they haven't been set yet (initial app load)
+          // During login, these are already set based on the email
+          // if(s.userRole) userRole = s.userRole;
+          // if(s.userRegion) userRegion = s.userRegion;
           return true;
         }
       }catch(e){
@@ -470,6 +557,44 @@
       container.innerHTML=html;
     }
 
+    // Advanced Filtering for Managers
+    function renderAdvancedFilters(){
+      if(userRole !== 'manager') return '';
+
+      const regions = [
+        {value: 'bali', label: 'Bali'},
+        {value: 'west-java', label: 'West Java'},
+        {value: 'east-java', label: 'East Java'}
+      ];
+
+      const locationsByRegion = {
+        'bali': ['Seminyak', 'Canggu', 'Uluwatu'],
+        'west-java': ['Jakarta', 'Bandung'],
+        'east-java': ['Surabaya', 'Malang']
+      };
+
+      return `
+      <div class="filter-section">
+        <div class="filter-row">
+          <div class="filter-col">
+            <div class="filter-label">Region</div>
+            <select class="sel" id="regionFilter" style="width:100%">
+              <option value="all">All Regions</option>
+              ${regions.map(r=>`<option value="${r.value}">${r.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filter-col">
+            <div class="filter-label">Location</div>
+            <select class="sel" id="locationFilter" style="width:100%">
+              <option value="">All Locations</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      `;
+    }
+
+
     // Seed data
     
     function seedEnhanced(){
@@ -527,9 +652,20 @@
         { id:37,name:'Bukit Delight',region:'east-java',area:'Malang',category:'high-importance',venueType:'restaurant',shotPrice:45000,bottlePrice:1095000,avgMonthlySales:12,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false }
       ];
 
-      // Generate realistic visit history with actual changes
+      // Generate realistic visit history with actual changes for specific ambassadors
       const visitData = [];
-      const users = ['John Smith', 'Sarah Johnson', 'Mike Chen', 'Lisa Anderson', 'David Williams', 'Emma Brown'];
+
+      // Define ambassadors with their assigned regions - matching login email patterns
+      const ambassadors = [
+        { name: 'John Bali', email: 'john.bali@', region: 'bali', areas: ['Seminyak', 'Canggu', 'Uluwatu'] },
+        { name: 'Sarah Jakarta', email: 'sarah.jakarta@', region: 'west-java', areas: ['Jakarta'] },
+        { name: 'Mike Surabaya', email: 'mike.surabaya@', region: 'east-java', areas: ['Surabaya'] },
+        { name: 'Emma Bali', email: 'emma.bali@', region: 'bali', areas: ['Seminyak', 'Canggu'] },
+        { name: 'David Bandung', email: 'david.bandung@', region: 'west-java', areas: ['Bandung'] },
+        { name: 'Lisa Bali', email: 'lisa.bali@', region: 'bali', areas: ['Uluwatu'] },
+        { name: 'Tom Malang', email: 'tom.malang@', region: 'east-java', areas: ['Malang'] },
+        { name: 'Jessica Jakarta', email: 'jessica.jakarta@', region: 'west-java', areas: ['Jakarta'] }
+      ];
       const changeActions = [
         ['✓ Contract Signed activated', 'Shot price updated to Rp 125,000'],
         ['✓ Custom Branding activated', '✓ Light Visibility activated'],
@@ -569,28 +705,38 @@
       let visitId = 1;
       const today = new Date();
 
-      // Generate 60-80 visits over the past 45 days
-      const numVisits = Math.floor(Math.random() * 20) + 60;
-      for (let i = 0; i < numVisits; i++) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - Math.floor(Math.random() * 45));
-        const dateStr = date.toISOString().split('T')[0];
+      // Generate visits for each ambassador
+      ambassadors.forEach(ambassador => {
+        // Get venues for this ambassador's region
+        const regionVenues = venues.filter(v => v.region === ambassador.region);
 
-        const venueId = Math.floor(Math.random() * 37) + 1;
-        const userId = Math.floor(Math.random() * users.length);
-        const actionSet = changeActions[Math.floor(Math.random() * changeActions.length)];
-        const noteIdx = Math.floor(Math.random() * visitNotes.length);
+        // Generate 10-20 visits per ambassador over the past 30 days
+        const numVisits = Math.floor(Math.random() * 11) + 10;
 
-        visitData.push({
-          id: visitId++,
-          venueId: venueId,
-          date: dateStr,
-          dateObj: dateLocal(dateStr),
-          user: users[userId],
-          actions: Array.isArray(actionSet) ? actionSet : [actionSet],
-          notes: visitNotes[noteIdx]
-        });
-      }
+        for (let i = 0; i < numVisits; i++) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+          const dateStr = date.toISOString().split('T')[0];
+
+          // Select a random venue from ambassador's region
+          const venue = regionVenues[Math.floor(Math.random() * regionVenues.length)];
+          if (!venue) continue;
+
+          const actionSet = changeActions[Math.floor(Math.random() * changeActions.length)];
+          const noteIdx = Math.floor(Math.random() * visitNotes.length);
+
+          visitData.push({
+            id: visitId++,
+            venueId: venue.id,
+            date: dateStr,
+            dateObj: dateLocal(dateStr),
+            user: ambassador.name,
+            ambassadorName: ambassador.name,
+            actions: Array.isArray(actionSet) ? actionSet : [actionSet],
+            notes: visitNotes[noteIdx]
+          });
+        }
+      });
 
       visits = visitData.sort((a, b) => b.dateObj - a.dateObj);
       save(); // Save the enhanced data to localStorage
@@ -607,36 +753,282 @@
       { id:8,name:'Colors Pub',region:'east-java',area:'Surabaya',category:'must-win-commercial',venueType:'bar',shotPrice:85000,bottlePrice:2000000,avgMonthlySales:35,contract:true,customBranding:true,lightVisibility:true,coolingDevice:true,standardPOSM:true,correctMenu:true,promo:true,iceColdServe:true,staffTraining:true }
     ];
     visits=[
-      { id:1,venueId:1,date:'2024-12-20',dateObj:dateLocal('2024-12-20'),user:'John Smith',actions:['Staff training done','Standard POSM placed','Perfect Outlet status achieved'],notes:'Year-end campaign ready.' },
-      { id:2,venueId:6,date:'2024-12-20',dateObj:dateLocal('2024-12-20'),user:'Sarah Johnson',actions:['Contract signed','Custom branding installed','Perfect Outlet status achieved'],notes:'Premium Jakarta placement.' },
-      { id:3,venueId:4,date:'2024-12-19',dateObj:dateLocal('2024-12-19'),user:'John Smith',actions:['Light visibility placed','Staff training done'],notes:'Improve POSM next time.' },
-      { id:4,venueId:3,date:'2024-12-18',dateObj:dateLocal('2024-12-18'),user:'John Smith',actions:['Contract negotiation','Perfect Outlet status achieved'],notes:'Contract pending approval.' }
+      { id:1,venueId:1,date:'2024-12-20',dateObj:dateLocal('2024-12-20'),user:'John Bali',ambassadorName:'John Bali',actions:['Staff training done','Standard POSM placed','Perfect Outlet status achieved'],notes:'Year-end campaign ready.' },
+      { id:2,venueId:6,date:'2024-12-20',dateObj:dateLocal('2024-12-20'),user:'Sarah Jakarta',ambassadorName:'Sarah Jakarta',actions:['Contract signed','Custom branding installed','Perfect Outlet status achieved'],notes:'Premium Jakarta placement.' },
+      { id:3,venueId:4,date:'2024-12-19',dateObj:dateLocal('2024-12-19'),user:'John Bali',ambassadorName:'John Bali',actions:['Light visibility placed','Staff training done'],notes:'Improve POSM next time.' },
+      { id:4,venueId:3,date:'2024-12-18',dateObj:dateLocal('2024-12-18'),user:'John Bali',ambassadorName:'John Bali',actions:['Contract negotiation','Perfect Outlet status achieved'],notes:'Contract pending approval.' },
+      { id:5,venueId:8,date:'2024-12-19',dateObj:dateLocal('2024-12-19'),user:'Mike Surabaya',ambassadorName:'Mike Surabaya',actions:['Staff training done','Ice-cold serve checked'],notes:'Good progress.' },
+      { id:6,venueId:2,date:'2024-12-18',dateObj:dateLocal('2024-12-18'),user:'Emma Bali',ambassadorName:'Emma Bali',actions:['Cooling device checked','Promo materials updated'],notes:'Follow up next week.' },
+      { id:7,venueId:7,date:'2024-12-17',dateObj:dateLocal('2024-12-17'),user:'David Bandung',ambassadorName:'David Bandung',actions:['Contract negotiation started'],notes:'Decision pending.' }
     ]; }
 
     // Screens & Tabs
     function show(id){ qsa('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); toggleFab(); if(id==='visit' && !fromDetail){ fillVisitSelect(); buildToggles(); } }
-    function toggleFab(){ const on=$('main').classList.contains('active') && tab!=='statistics' && tab!=='settings'; $('fab').style.display=on?'flex':'none'; }
-    function setTab(t){ tab=t; qsa('.nav .it').forEach(i=>i.classList.toggle('active',i.dataset.tab===t)); const h=$('hdr'); if(t==='venues'){ h.textContent='VENUES'; renderVenueFilters(); renderVenues(); } else if(t==='visits'){ h.textContent='VISIT REPORTS'; renderVisitFilters(); renderVisits(); } else if(t==='statistics'){ h.textContent='STATISTICS'; renderStatFilters(); renderStats(); } else if(t==='settings'){ h.textContent='SETTINGS'; renderSettings(); } toggleFab(); }
+    function toggleFab(){ const on=$('main').classList.contains('active') && tab!=='statistics' && tab!=='settings' && userRole==='ambassador'; $('fab').style.display=on?'flex':'none'; }
+    function setTab(t){
+      tab=t;
+      qsa('.nav .it').forEach(i=>i.classList.toggle('active',i.dataset.tab===t));
+      const h=$('hdr');
+      if(t==='venues'){
+        h.textContent='VENUES';
+        renderVenueFilters();
+        renderVenues();
+      } else if(t==='visits'){
+        h.textContent='VISITS';
+        renderVisitFilters();
+        renderVisits();
+      } else if(t==='statistics'){
+        h.textContent='STATISTICS';
+        renderStatFilters();
+        renderStats();
+      } else if(t==='settings'){
+        h.textContent='SETTINGS';
+        renderSettings();
+      }
+      toggleFab();
+    }
+
+    // Removed Dashboard - managers now start on Venues
+
+    // Team leaderboard for managers (now in Statistics)
+    function renderTeamLeaderboard(filteredVisits){
+      // This function is called from Statistics tab for managers only
+      const visitsToUse = filteredVisits || visits;
+      const ambassadors = {};
+      const today = new Date();
+      const last7Days = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const last30Days = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      // Map ambassador names to their regions - matching login names
+      const ambassadorRegions = {
+        'John Bali': 'Bali',
+        'Sarah Jakarta': 'West Java',
+        'Mike Surabaya': 'East Java',
+        'Emma Bali': 'Bali',
+        'David Bandung': 'West Java',
+        'Lisa Bali': 'Bali',
+        'Tom Malang': 'East Java',
+        'Jessica Jakarta': 'West Java'
+      };
+
+      visitsToUse.forEach(v => {
+        const name = v.ambassadorName || v.user || 'Unknown';
+        const region = ambassadorRegions[name] || v.ambassadorRegion || 'Unknown';
+        if(!ambassadors[name]) {
+          ambassadors[name] = {
+            name,
+            region,
+            visits: 0,
+            visitsLast7Days: 0,
+            visitsLast30Days: 0,
+            perfectVenues: new Set(),
+            lastVisit: null,
+            venues: new Set()
+          };
+        }
+        ambassadors[name].visits++;
+        ambassadors[name].venues.add(v.venueId);
+
+        // Track recent activity
+        const visitDate = v.dateObj || new Date(v.date);
+        if(visitDate >= last7Days) ambassadors[name].visitsLast7Days++;
+        if(visitDate >= last30Days) ambassadors[name].visitsLast30Days++;
+
+        // Track last visit
+        if(!ambassadors[name].lastVisit || visitDate > ambassadors[name].lastVisit) {
+          ambassadors[name].lastVisit = visitDate;
+        }
+
+        const venue = venues.find(ven => ven.id === v.venueId);
+        if(venue && perfect(venue)) {
+          ambassadors[name].perfectVenues.add(v.venueId);
+        }
+      });
+
+      const ambassadorList = Object.values(ambassadors).sort((a,b) => b.visitsLast7Days - a.visitsLast7Days);
+
+      // Calculate performance scores
+      ambassadorList.forEach(amb => {
+        amb.perfScore = Math.round(
+          (amb.perfectVenues.size * 100 / Math.max(amb.venues.size, 1))
+        );
+        amb.activityTrend = amb.visitsLast7Days > 0 ? 'active' :
+                            amb.visitsLast30Days > 0 ? 'moderate' : 'inactive';
+      });
+
+      return `
+        <div class="info" style="border-top:2px solid #e0e0e0;margin-top:20px;padding-top:20px">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;color:var(--fg)">Team Performance Dashboard</h3>
+
+          <!-- Quick stats -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px">
+            <div style="background:#f8f9fa;padding:12px;border-radius:8px">
+              <div style="font-size:11px;color:#666">Active Ambassadors</div>
+              <div style="font-size:20px;font-weight:700;color:var(--accent)">${ambassadorList.filter(a => a.visitsLast7Days > 0).length}</div>
+            </div>
+            <div style="background:#f8f9fa;padding:12px;border-radius:8px">
+              <div style="font-size:11px;color:#666">Weekly Visits</div>
+              <div style="font-size:20px;font-weight:700;color:var(--electric)">${ambassadorList.reduce((sum, a) => sum + a.visitsLast7Days, 0)}</div>
+            </div>
+            <div style="background:#f8f9fa;padding:12px;border-radius:8px">
+              <div style="font-size:11px;color:#666">Avg Performance</div>
+              <div style="font-size:20px;font-weight:700;color:#4caf50">${Math.round(ambassadorList.reduce((sum, a) => sum + a.perfScore, 0) / Math.max(ambassadorList.length, 1))}%</div>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto">
+            <table style="width:100%;font-size:13px">
+              <thead>
+                <tr style="border-bottom:2px solid #e0e0e0">
+                  <th style="text-align:left;padding:8px;color:#666;font-weight:600">Ambassador</th>
+                  <th style="text-align:left;padding:8px;color:#666;font-weight:600">Region</th>
+                  <th style="text-align:center;padding:8px;color:#666;font-weight:600">7-Day Activity</th>
+                  <th style="text-align:center;padding:8px;color:#666;font-weight:600">Perfect %</th>
+                  <th style="text-align:right;padding:8px;color:#666;font-weight:600">Total Visits</th>
+                  <th style="text-align:center;padding:8px;color:#666;font-weight:600">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ambassadorList.map((amb, index) => {
+                  const statusColor = amb.activityTrend === 'active' ? '#4caf50' :
+                                     amb.activityTrend === 'moderate' ? '#ff9800' : '#f44336';
+                  const statusIcon = amb.activityTrend === 'active' ? '●' :
+                                    amb.activityTrend === 'moderate' ? '◐' : '○';
+                  const medalColor = index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '';
+
+                  return `
+                  <tr style="border-bottom:1px solid #f0f0f0;${amb.activityTrend === 'inactive' ? 'opacity:0.7' : ''}">
+                    <td style="padding:12px">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        ${medalColor ? `<span style="font-weight:900;color:${medalColor};font-size:16px">${index + 1}</span>` : ''}
+                        <div>
+                          <div style="font-weight:600">${amb.name}</div>
+                          ${amb.lastVisit ? `<div style="font-size:11px;color:#999">Last: ${amb.lastVisit.toLocaleDateString()}</div>` : ''}
+                        </div>
+                      </div>
+                    </td>
+                    <td style="padding:12px;color:#666">${amb.region.charAt(0).toUpperCase() + amb.region.slice(1).replace('-',' ')}</td>
+                    <td style="padding:12px;text-align:center">
+                      <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+                        <div style="font-weight:700;color:var(--accent)">${amb.visitsLast7Days}</div>
+                        <div style="font-size:11px;color:#999">/ ${amb.visitsLast30Days}</div>
+                      </div>
+                    </td>
+                    <td style="padding:12px;text-align:center">
+                      <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:12px;background:${amb.perfScore >= 80 ? '#e8f5e9' : amb.perfScore >= 50 ? '#fff3e0' : '#ffebee'}">
+                        <span style="font-weight:700;color:${amb.perfScore >= 80 ? '#4caf50' : amb.perfScore >= 50 ? '#ff9800' : '#f44336'}">${amb.perfScore}%</span>
+                      </div>
+                    </td>
+                    <td style="padding:12px;text-align:right;font-weight:600">${amb.visits}</td>
+                    <td style="padding:12px;text-align:center">
+                      <span style="color:${statusColor};font-size:16px" title="${amb.activityTrend}">${statusIcon}</span>
+                    </td>
+                  </tr>
+                `}).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Legend -->
+          <div style="display:flex;gap:20px;margin-top:16px;padding:12px;background:#f8f9fa;border-radius:8px;font-size:11px;color:#666">
+            <div><span style="color:#4caf50">●</span> Active (visited in last 7 days)</div>
+            <div><span style="color:#ff9800">◐</span> Moderate (visited in last 30 days)</div>
+            <div><span style="color:#f44336">○</span> Inactive (no recent visits)</div>
+          </div>
+        </div>
+      `;
+    }
 
     // Venues list
     function renderVenueFilters(){
       const f=$('filters');
 
-      // Always show full region/area selection for Venues tab - no restrictions
-      const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
-      f.innerHTML=`
-        <div class="row"><select class="sel" id="fLoc">${opts}</select></div>
-        <div class="row"><select class="sel" id="fCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
-        <select class="sel" id="fType"><option value="">All Types</option><option value="bar">Bar</option><option value="club">Club</option><option value="restaurant">Restaurant</option></select></div>
-        <div class="row"><input class="input" id="fQuery" placeholder="Search by venue name..."/></div>`;
+      // Enhanced filters for managers
+      if(userRole === 'manager') {
+        f.innerHTML = renderAdvancedFilters();
+        // Setup filter event listeners after rendering
+        setTimeout(()=>{
+          // Location data
+          const locationsByRegion = {
+            'bali': ['Seminyak', 'Canggu', 'Uluwatu'],
+            'west-java': ['Jakarta', 'Bandung'],
+            'east-java': ['Surabaya', 'Malang']
+          };
 
-      $('fLoc').addEventListener('change',filterVenues);
-      ['fCat','fType'].forEach(id=>$(id)?.addEventListener('change',filterVenues));
-      $('fQuery').addEventListener('input',filterVenues);
+          // Region dropdown
+          const regionFilter = $('regionFilter');
+          const locationFilter = $('locationFilter');
+
+          if(regionFilter) {
+            regionFilter.addEventListener('change',()=>{
+              const region = regionFilter.value;
+              selectedRegion = region;
+
+              // Update location dropdown
+              if(region === 'all') {
+                locationFilter.innerHTML = '<option value="">All Locations</option>';
+              } else {
+                const locations = locationsByRegion[region] || [];
+                locationFilter.innerHTML = '<option value="">All Locations</option>' +
+                  locations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+              }
+              locationFilter.value = '';
+
+              // Filter venues
+              applyVenueFilters();
+            });
+          }
+
+          // Location filter
+          if(locationFilter) {
+            locationFilter.addEventListener('change',()=>{
+              applyVenueFilters();
+            });
+          }
+
+          // Helper function to apply filters
+          function applyVenueFilters() {
+            const region = $('regionFilter')?.value || 'all';
+            const location = $('locationFilter')?.value || '';
+
+            let filtered = venues;
+
+            if(region !== 'all') {
+              filtered = filtered.filter(v => v.region === region);
+            }
+
+            if(location) {
+              filtered = filtered.filter(v => v.area === location);
+            }
+
+            renderVenues(filtered);
+          }
+
+        },100);
+      } else {
+        // Simple filters for ambassadors
+        const opts = locOptions
+          .filter(o => o.v === '' || o.v.startsWith(userRegion))
+          .map(o => `<option value="${o.v}">${o.l}</option>`)
+          .join('');
+        f.innerHTML=`
+          <div class="row"><select class="sel" id="fLoc">${opts}</select></div>
+          <div class="row"><select class="sel" id="fCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
+          <select class="sel" id="fType"><option value="">All Types</option><option value="bar">Bar</option><option value="club">Club</option><option value="restaurant">Restaurant</option></select></div>
+          <div class="row"><input class="input" id="fQuery" placeholder="Search by venue name..."/></div>`;
+        $('fLoc').addEventListener('change',filterVenues);
+        ['fCat','fType'].forEach(id=>$(id)?.addEventListener('change',filterVenues));
+        $('fQuery').addEventListener('input',filterVenues);
+      }
     }
     function filterVenues(){
       const loc=$('fLoc')?.value,cat=$('fCat').value,typ=$('fType').value,q=($('fQuery').value||'').toLowerCase();
       let arr=venues.filter(v=>v.name.toLowerCase().includes(q));
+
+      // Filter based on user role
+      if(userRole === 'ambassador') {
+        arr = arr.filter(v => v.region === userRegion);
+      }
 
       // Venues tab has full freedom - no selectedRegion restrictions
       if(loc){
@@ -650,8 +1042,19 @@
     }
     function renderVenues(arr){
       const c=$('content');
-      // Always use the current venues array unless a filtered array is provided
-      const data=arr||venues;
+      // Filter venues based on user role
+      let baseVenues = venues;
+      if(userRole === 'ambassador') {
+        // Ambassadors only see venues in their region
+        baseVenues = venues.filter(v => v.region === userRegion);
+      }
+      // Use filtered array if provided, otherwise use role-filtered venues
+      let data = arr || baseVenues;
+
+      // Sort venues alphabetically by name (A-Z) for both roles
+      data = [...data].sort((a,b) => {
+        return a.name.localeCompare(b.name);
+      });
 
       // Show skeleton loader briefly
       showSkeletons(c,3);
@@ -661,10 +1064,17 @@
           return;
         }
 
+        // Summary statistics removed for ambassadors - they focus on individual venue management
         let html='<div class="list">';
         data.forEach(v=>{
           // Re-check perfect status for each venue to ensure accuracy
           const isPerfect = perfect(v);
+
+          // Calculate completion percentage for priority indicator
+          const toggleCount = [v.lightVisibility, v.coolingDevice, v.standardPOSM,
+                              v.correctMenu, v.promo, v.iceColdServe, v.staffTraining]
+                              .filter(Boolean).length;
+          const completion = Math.round(toggleCount * 100 / 7);
 
           // Debug La Favela specifically
           if (v.name === 'La Favela') {
@@ -687,9 +1097,14 @@
           }
 
           const k=v.category==='must-win-image'?'i':v.category==='must-win-commercial'?'c':'h';
-          html+=`<div class="card ${k}${isPerfect?' perfect':''}" data-id="${v.id}">`+
+
+          // Only show PERFECT badge, no priority indicators for ambassadors
+          let priorityIndicator = '';
+
+          html+=`<div class="card ${k}${isPerfect?' perfect':''}" data-id="${v.id}" style="position:relative">`+
+            priorityIndicator +
             `<div class="name">${esc(v.name)}</div>`+
-            `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(v.area)}, ${esc(v.region.replace('-', ' ').toUpperCase())}</div>`+
+            `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(v.area)}, ${esc(v.region.charAt(0).toUpperCase() + v.region.slice(1).replace('-', ' '))}</div>`+
             `</div>`;
         });
         html+='</div>';
@@ -705,22 +1120,33 @@
       m.setMonth(t.getMonth()-1);
       const to=d=>d.toISOString().split('T')[0];
 
-      // Build area options based on selected region
+      // Build region filter for managers, area filter for ambassadors
+      let regionHtml = '';
       let areaHtml = '';
-      if(selectedRegion !== 'all') {
+
+      if(userRole === 'manager') {
+        // Managers get region selector
+        const regions = [...new Set(venues.map(v => v.region))].sort();
+        const regionOptions = '<option value="">All Regions</option>' + regions.map(r =>
+          `<option value="${r}">${r.charAt(0).toUpperCase() + r.slice(1).replace('-', ' ')}</option>`
+        ).join('');
+        regionHtml = `<div class="row"><select class="sel" id="vRegion">${regionOptions}</select></div>`;
+      } else if(selectedRegion !== 'all') {
+        // Ambassadors see area filter for their region
         const areas = [...new Set(venues.filter(v => v.region === selectedRegion).map(v => v.area))].sort();
         const areaOptions = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
         areaHtml = `<div class="row"><select class="sel" id="vArea">${areaOptions}</select></div>`;
       }
 
       f.innerHTML=`
-      ${selectedRegion !== 'all' ? `<div style="background:var(--chip);padding:8px;border-radius:8px;margin-bottom:10px;font-size:12px;color:var(--accent);font-weight:600">Filtered by: ${selectedRegion}</div>` : ''}
+      ${regionHtml}
       ${areaHtml}
       <div class="row"><input type="date" class="date" id="dFrom" value="${to(m)}"><input type="date" class="date" id="dTo" value="${to(t)}"></div>
       <div class="chips"><button class="chip" data-p="week">Week</button><button class="chip active" data-p="month">Month</button><button class="chip" data-p="quarter">Quarter</button><button class="chip" data-p="year">Year</button><button class="chip" data-p="all">All</button></div>`;
 
       $('dFrom').addEventListener('change',renderVisits);
       $('dTo').addEventListener('change',renderVisits);
+      if($('vRegion')) $('vRegion').addEventListener('change',renderVisits);
       if($('vArea')) $('vArea').addEventListener('change',renderVisits);
       qsa('.chip',f).forEach(b=>b.addEventListener('click',()=>setPeriod(b.dataset.p,b)));
     }
@@ -730,8 +1156,22 @@
       to.setHours(23,59,59,999);
       let list=visits.filter(v=>v.dateObj>=from&&v.dateObj<=to);
 
-      // Apply region and area filters
-      if(selectedRegion !== 'all') {
+      // Filter visits based on role
+      if(userRole === 'ambassador') {
+        // Ambassadors only see their own visits
+        list = list.filter(v => v.ambassadorName === user?.name || v.user === user?.name);
+      }
+
+      // Apply filters based on role
+      if(userRole === 'manager') {
+        // Managers can filter by region if they choose
+        const regionFilter = $('vRegion')?.value;
+        if(regionFilter) {
+          const regionVenues = venues.filter(v => v.region === regionFilter);
+          list = list.filter(v => regionVenues.some(rv => rv.id === v.venueId));
+        }
+      } else if(userRole === 'ambassador' && selectedRegion !== 'all') {
+        // Ambassadors filter by area within their region
         const regionVenues = venues.filter(v => v.region === selectedRegion);
         const areaFilter = $('vArea')?.value;
         if(areaFilter) {
@@ -748,22 +1188,68 @@
       showSkeletons(c, 4);
 
       setTimeout(() => {
-        const s={total:list.length,venues:new Set(list.map(v=>v.venueId)).size,contracts:list.filter(v=>v.actions?.some(a=>/Contract/i.test(a))).length,trainings:list.filter(v=>v.actions?.some(a=>/training/i.test(a))).length};
+        // Calculate perfect venues from visited venues
+        const perfectVenueIds = new Set();
+        list.forEach(v => {
+          const venue = venues.find(ven => ven.id === v.venueId);
+          if(venue && perfect(venue)) {
+            perfectVenueIds.add(v.venueId);
+          }
+        });
+
+        // Calculate toggle stats
+        const toggleStats = {
+          lightVisibility: 0,
+          coolingDevice: 0,
+          standardPOSM: 0,
+          correctMenu: 0,
+          promo: 0,
+          iceColdServe: 0,
+          staffTraining: 0
+        };
+
+        const visitedVenueIds = new Set(list.map(v => v.venueId));
+        visitedVenueIds.forEach(venueId => {
+          const venue = venues.find(v => v.id === venueId);
+          if(venue) {
+            if(venue.lightVisibility) toggleStats.lightVisibility++;
+            if(venue.coolingDevice) toggleStats.coolingDevice++;
+            if(venue.standardPOSM) toggleStats.standardPOSM++;
+            if(venue.correctMenu) toggleStats.correctMenu++;
+            if(venue.promo) toggleStats.promo++;
+            if(venue.iceColdServe) toggleStats.iceColdServe++;
+            if(venue.staffTraining) toggleStats.staffTraining++;
+          }
+        });
+
+        const s={total:list.length,perfectVenues:perfectVenueIds.size};
         let html=`<div class="sum"><div class="sumg">`+
         `<div class="sumi"><div class="sul">Total Visits</div><div class="suv count-up">${s.total}</div></div>`+
-        `<div class="sumi"><div class="sul">Unique Venues</div><div class="suv count-up">${s.venues}</div></div>`+
-        `<div class="sumi"><div class="sul">Contracts Signed</div><div class="suv count-up">${s.contracts}</div></div>`+
-        `<div class="sumi"><div class="sul">Staff Trainings</div><div class="suv count-up">${s.trainings}</div></div>`+
-        `</div></div><div class="acts"><div class="acti"><span>Contracts Signed</span><strong style="color:var(--accent)">${s.contracts}</strong></div><div class="acti"><span>Staff Trainings</span><strong style="color:var(--accent)">${s.trainings}</strong></div><div class="acti"><span>Promos Started</span><strong style="color:var(--accent)">${list.filter(v=>v.actions?.some(a=>/Promo/i.test(a))).length}</strong></div></div><div class="list">`;
+        `<div class="sumi"><div class="sul">Perfect Venues</div><div class="suv count-up">${s.perfectVenues}</div></div>`+
+        `</div></div>`+
+        `<div class="info" style="border:none;margin-top:12px">`+
+        `<h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--fg)">Venue Status Overview</h3>`+
+        `<div style="display:flex;flex-direction:column;gap:8px">`+
+        `<div class="row2"><span>Light Visibility</span><strong style="color:var(--accent)">${toggleStats.lightVisibility}</strong></div>`+
+        `<div class="row2"><span>Cooling Device</span><strong style="color:var(--accent)">${toggleStats.coolingDevice}</strong></div>`+
+        `<div class="row2"><span>Standard POSM</span><strong style="color:var(--accent)">${toggleStats.standardPOSM}</strong></div>`+
+        `<div class="row2"><span>Correct Menu</span><strong style="color:var(--accent)">${toggleStats.correctMenu}</strong></div>`+
+        `<div class="row2"><span>Promo Active</span><strong style="color:var(--accent)">${toggleStats.promo}</strong></div>`+
+        `<div class="row2"><span>Ice-cold Serve</span><strong style="color:var(--accent)">${toggleStats.iceColdServe}</strong></div>`+
+        `<div class="row2"><span>Staff Training</span><strong style="color:var(--accent)">${toggleStats.staffTraining}</strong></div>`+
+        `</div></div><div class="list">`;
 
         let cardIndex = 0;
         list.forEach(v=>{
           const ven=venues.find(x=>x.id===v.venueId);
           if(!ven) return;
+          const ambassadorInfo = userRole === 'manager' && v.ambassadorName ?
+            `<div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px">${v.ambassadorName}</div>` : '';
           html+=`<div class="card visit-card-animated" data-id="${ven.id}" style="animation-delay:${cardIndex * 0.05}s">`+
+            ambassadorInfo +
             `<div style="font-size:11px;color:#999;display:flex;gap:6px;align-items:center"><span class="icon">${ICONS.calendar}</span>${v.date}</div>`+
             `<div class="name">${esc(ven.name)}</div>`+
-            `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(ven.area)}, ${esc(ven.region.toUpperCase())}</div>`+
+            `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(ven.area)}, ${esc(ven.region.charAt(0).toUpperCase() + ven.region.slice(1).replace('-', ' '))}</div>`+
             `<div style="margin-top:8px;font-size:13px;color:#666">${(v.actions||[]).map(a=>`<span class="icon">${ICONS.check}</span> ${esc(a)}`).join('<br>')}</div>`+
             (v.notes? `<div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px;font-size:12px"><span class="icon">${ICONS.note}</span> ${esc(v.notes)}</div>`:'')+
           `</div>`;
@@ -779,17 +1265,82 @@
     // Statistics
     function renderStatFilters(){
       const f=$('filters');
-      // Don't show region filter if one is selected in settings
-      if(selectedRegion === 'all') {
-        const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+      // Managers can see all regions
+      if(userRole === 'manager') {
+        const regions = [
+          {value: 'bali', label: 'Bali'},
+          {value: 'west-java', label: 'West Java'},
+          {value: 'east-java', label: 'East Java'}
+        ];
+
         f.innerHTML=`
-        <div class="row"><select class="sel" id="sLoc">${opts}</select></div>
-        <div class="row"><select class="sel" id="sCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
-        <select class="sel" id="sPerf"><option value="">All Outlets</option><option value="perfect">Perfect Outlets Only</option><option value="not">Non-Perfect</option></select></div>`;
-        ['sLoc','sCat','sPerf'].forEach(id=>$(id).addEventListener('change',renderStats));
+        <div class="filter-row">
+          <div class="filter-col">
+            <div class="filter-label">Region</div>
+            <select class="sel" id="statRegionFilter" style="width:100%">
+              <option value="all">All Regions</option>
+              ${regions.map(r=>`<option value="${r.value}">${r.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filter-col">
+            <div class="filter-label">Location</div>
+            <select class="sel" id="statLocationFilter" style="width:100%">
+              <option value="">All Locations</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-col">
+            <select class="sel" id="sCat" style="width:100%">
+              <option value="">All Categories</option>
+              <option value="must-win-image">Must Win Image</option>
+              <option value="must-win-commercial">Must Win Commercial</option>
+              <option value="high-importance">High Importance</option>
+            </select>
+          </div>
+          <div class="filter-col">
+            <select class="sel" id="sPerf" style="width:100%">
+              <option value="">All Outlets</option>
+              <option value="perfect">Perfect Outlets Only</option>
+              <option value="not">Non-Perfect</option>
+            </select>
+          </div>
+        </div>`;
+
+        // Setup event listeners
+        setTimeout(()=>{
+          const locationsByRegion = {
+            'bali': ['Seminyak', 'Canggu', 'Uluwatu'],
+            'west-java': ['Jakarta', 'Bandung'],
+            'east-java': ['Surabaya', 'Malang']
+          };
+
+          const statRegionFilter = $('statRegionFilter');
+          const statLocationFilter = $('statLocationFilter');
+
+          if(statRegionFilter) {
+            statRegionFilter.addEventListener('change',()=>{
+              const region = statRegionFilter.value;
+
+              // Update location dropdown
+              if(region === 'all') {
+                statLocationFilter.innerHTML = '<option value="">All Locations</option>';
+              } else {
+                const locations = locationsByRegion[region] || [];
+                statLocationFilter.innerHTML = '<option value="">All Locations</option>' +
+                  locations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+              }
+              statLocationFilter.value = '';
+
+              renderStats();
+            });
+          }
+
+          ['statLocationFilter','sCat','sPerf'].forEach(id=>$(id)?.addEventListener('change',renderStats));
+        });
       } else {
+        // Ambassadors see only their region
         f.innerHTML=`
-        <div style="background:var(--chip);padding:8px;border-radius:8px;margin-bottom:10px;font-size:12px;color:var(--accent);font-weight:600">Filtered by: ${selectedRegion}</div>
         <div class="row"><select class="sel" id="sCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
         <select class="sel" id="sPerf"><option value="">All Outlets</option><option value="perfect">Perfect Outlets Only</option><option value="not">Non-Perfect</option></select></div>`;
         ['sCat','sPerf'].forEach(id=>$(id)?.addEventListener('change',renderStats));
@@ -797,15 +1348,22 @@
     }
     function renderStats(){
       const c=$('content');
-      const loc=$('sLoc')?.value||'',cat=$('sCat')?.value||'',pf=$('sPerf')?.value||'';
+      const region=$('statRegionFilter')?.value||'all';
+      const location=$('statLocationFilter')?.value||'';
+      const cat=$('sCat')?.value||'',pf=$('sPerf')?.value||'';
       let arr=venues.slice();
 
-      // Apply region filter from settings if set
-      if(selectedRegion !== 'all') {
-        arr = arr.filter(v => v.region === selectedRegion);
-      } else if(loc){
-        const [r,a]=loc.split('|');
-        arr=arr.filter(v=>a==='all'?v.region===r:(v.region===r&&v.area===a));
+      // Filter based on user role first
+      if(userRole === 'ambassador') {
+        arr = arr.filter(v => v.region === userRegion);
+      } else if(userRole === 'manager'){
+        // Managers can filter by region and location
+        if(region !== 'all') {
+          arr = arr.filter(v => v.region === region);
+        }
+        if(location) {
+          arr = arr.filter(v => v.area === location);
+        }
       }
 
       if(cat) arr=arr.filter(v=>v.category===cat);
@@ -846,7 +1404,29 @@
               `<div style="font-size:12px;color:#999;margin-top:2px">${val} of ${total} venues</div>`+
             `</div>`+
           `</div>`+
-        `</div>`; }); html+='</div>'; c.innerHTML=html; animateCounters(); }
+        `</div>`; }); html+='</div>';
+
+      // Add Team Leaderboard for managers only (with filters)
+      if(userRole === 'manager') {
+        // Filter visits based on current statistics filters
+        const filteredVisits = visits.filter(v => {
+          const venue = venues.find(ven => ven.id === v.venueId);
+          if(!venue) return false;
+
+          // Apply region filter
+          const region=$('statRegionFilter')?.value||'all';
+          const location=$('statLocationFilter')?.value||'';
+
+          if(region !== 'all' && venue.region !== region) return false;
+          if(location && venue.area !== location) return false;
+
+          return true;
+        });
+
+        html += renderTeamLeaderboard(filteredVisits);
+      }
+
+      c.innerHTML=html; animateCounters(); }
 
     // Detail
     function openDetail(id){
@@ -873,13 +1453,30 @@
       }
 
       $('dName').textContent=v.name;
-      $('dRegion').textContent=v.region;
+      $('dRegion').textContent=v.region.charAt(0).toUpperCase() + v.region.slice(1).replace('-', ' ');
       $('dArea').textContent=v.area;
-      $('dType').textContent=v.venueType;
-      $('dCat').textContent=v.category;
+      $('dType').textContent=v.venueType.charAt(0).toUpperCase() + v.venueType.slice(1);
+      $('dCat').textContent=v.category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
       $('dShot').textContent=v.shotPrice?fmtIDR.format(v.shotPrice):'-';
       $('dBottle').textContent=v.bottlePrice?fmtIDR.format(v.bottlePrice):'-';
       $('dSales').textContent=v.avgMonthlySales?fmtInt.format(v.avgMonthlySales)+' bottles':'-';
+
+      // Only show Create Visit Report button for ambassadors
+      const buttonContainer = $('visitButtonContainer');
+      if(userRole === 'ambassador') {
+        buttonContainer.innerHTML = '<button class="btn" id="openVisit"><span class="icon" data-i="edit"></span>Create Visit Report</button>';
+        initIcons();
+        // Re-attach the event listener
+        $('openVisit').addEventListener('click',()=>{
+          fromDetail=true;
+          show('visit');
+          $('visitSel').style.display='none';
+          $('selVenue').innerHTML=`<option value="${current}">Current: ${esc(venues.find(v=>v.id===current).name)}</option>`;
+          buildToggles();
+        });
+      } else {
+        buttonContainer.innerHTML = '';
+      }
 
       const pairs=[
         ['Contract',v.contract],
@@ -1012,101 +1609,85 @@
       const c=$('content');
       f.innerHTML = ''; // Clear filters for settings
 
-      const regions = ['all', 'bali', 'west-java', 'east-java'];
-      const regionOptions = regions.map(r =>
-        `<option value="${r}" ${selectedRegion === r ? 'selected' : ''}>${r === 'all' ? 'All Regions' : r === 'bali' ? 'Bali' : r === 'west-java' ? 'West Java' : 'East Java'}</option>`
-      ).join('');
-
       c.innerHTML = `
-      <div class="list">
-        <div class="info" style="margin:15px">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-            <div style="width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff">
-              <span class="icon">${ICONS.user}</span>
-            </div>
-            <div>
-              <div style="font-size:16px;font-weight:600;color:var(--fg)">${esc(user?.realName || user?.name || 'User')}</div>
-              <div style="font-size:13px;color:var(--muted)">${esc(user?.email || '')}</div>
-            </div>
+      <div class="settings-section">
+        <div class="settings-section-title">
+          <span class="icon">${ICONS.user}</span>
+          Profile Information
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Name</span>
+          <input class="settings-input" id="userName" value="${user?.name || 'Demo User'}" />
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Role</span>
+          <span class="settings-value">${userRole === 'manager' ? 'Manager' : 'Brand Ambassador'}</span>
+        </div>
+        ${userRole === 'ambassador' ? `
+          <div class="settings-row">
+            <span class="settings-label">Assigned Region</span>
+            <span class="settings-value">${userRegion.charAt(0).toUpperCase() + userRegion.slice(1).replace('-', ' ')}</span>
           </div>
-          <div style="font-size:11px;color:var(--muted);padding:8px;background:var(--chip);border-radius:6px">Logged in as Field Force Manager</div>
+        ` : ''}
+        <div class="settings-row">
+          <span class="settings-label">Email</span>
+          <span class="settings-value">${user?.email || 'demo@jager.com'}</span>
         </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-icon-gradient" id="saveNameBtn">
+            <span class="icon">${ICONS.save}</span>Save Changes
+          </button>
+        </div>
+      </div>
 
-        <div class="info" style="margin:15px">
-          <div class="label" style="margin-bottom:8px;font-weight:600">Your Information</div>
-          <label class="label" style="margin-top:12px">Full Name</label>
-          <div id="nameContainer" style="margin-bottom:12px">
-            <div id="nameDisplay" style="display:flex;align-items:center;gap:10px">
-              <div id="nameText" style="padding:10px 12px;background:var(--chip);border-radius:8px;flex:1;color:var(--fg);font-size:14px">${esc(user?.realName || 'Not set')}</div>
-              <button id="editNameBtn" class="btn" style="width:auto;padding:8px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px">Edit</button>
-            </div>
-            <div id="nameEdit" style="display:none">
-              <div style="display:flex;align-items:center;gap:10px">
-                <input class="input" id="realNameInput" placeholder="Enter your full name" value="${esc(user?.realName || '')}" style="margin:0;flex:1" />
-                <button id="saveNameBtn" class="btn" style="width:auto;padding:8px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px">Save</button>
-                <button id="cancelNameBtn" class="btn" style="width:auto;padding:8px 16px;background:#666;color:#fff;border-radius:8px;font-size:13px">Cancel</button>
-              </div>
-            </div>
+      <div class="settings-section" style="margin-top:16px">
+        <div class="settings-section-title">
+          <span class="icon">${ICONS.settings}</span>
+          App Information
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Version</span>
+          <span class="settings-value">1.0.0 (MVP)</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Data Storage</span>
+          <span class="settings-value">Local (Demo Mode)</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Build</span>
+          <span class="settings-value">September 2025</span>
+        </div>
+        <div class="settings-footer">
+          <div style="font-size:12px;color:#666;text-align:center;margin-bottom:12px">
+            This is a demo version using local storage.<br>No data is sent to servers.
           </div>
-          <div style="font-size:11px;color:var(--muted)">Your name will be shown in all visit reports</div>
-        </div>
-
-        <div class="info" style="margin:15px">
-          <div class="label" style="margin-bottom:8px;font-weight:600">Default Region Filter</div>
-          <select class="sel" id="regionFilter" style="margin-bottom:8px">${regionOptions}</select>
-          <div style="font-size:11px;color:var(--muted)">This filter applies to Statistics and Visits tabs</div>
-        </div>
-
-        <div style="padding:15px">
-          <button class="btn" id="logoutBtn" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">
+          <button class="btn btn-signout" id="logoutBtn">
             <span class="icon">${ICONS.arrowLeft}</span>Sign Out
           </button>
         </div>
       </div>`;
 
-      // Add event listeners for name editing
-      $('editNameBtn').addEventListener('click', function(){
-        $('nameDisplay').style.display = 'none';
-        $('nameEdit').style.display = 'block';
-        $('realNameInput').focus();
-        $('realNameInput').select();
-      });
-
-      $('saveNameBtn').addEventListener('click', function(){
-        const newName = $('realNameInput').value.trim();
+      // Add event listener for save name
+      $('saveNameBtn').addEventListener('click', () => {
+        const newName = $('userName').value.trim();
         if(newName) {
-          user.realName = newName;
+          user.name = newName;
           save();
-          $('nameText').textContent = newName;
-        } else {
-          user.realName = '';
-          save();
-          $('nameText').textContent = 'Not set';
-        }
-        $('nameDisplay').style.display = 'flex';
-        $('nameEdit').style.display = 'none';
-      });
-
-      $('cancelNameBtn').addEventListener('click', function(){
-        $('realNameInput').value = user?.realName || '';
-        $('nameDisplay').style.display = 'flex';
-        $('nameEdit').style.display = 'none';
-      });
-
-      // Allow saving with Enter key
-      $('realNameInput').addEventListener('keypress', function(e){
-        if(e.key === 'Enter') {
-          $('saveNameBtn').click();
+          showToast('Name updated successfully', 'success');
         }
       });
 
-      $('regionFilter').addEventListener('change', function(){
-        selectedRegion = this.value;
-        save();
-        showToast(`Region filter ${selectedRegion === 'all' ? 'disabled' : 'set to ' + selectedRegion}`, 'success');
+      // Add event listener for logout
+      $('logoutBtn').addEventListener('click', () => {
+        if(confirm('Are you sure you want to sign out?')) {
+          user = null;
+          userRole = 'ambassador';
+          userRegion = '';
+          save();
+          show('login');
+          showToast('Signed out successfully', 'success');
+        }
       });
-
-      $('logoutBtn').addEventListener('click', logout);
     }
 
     // Removed Reports tab functionality
@@ -1253,6 +1834,8 @@
         date:now.toISOString().split('T')[0],
         dateObj:new Date(now.getFullYear(),now.getMonth(),now.getDate(),12),
         user:(user?.realName||user?.name||'Demo User'),
+        ambassadorName: user?.name || 'Unknown Ambassador',
+        ambassadorRegion: user?.region || 'Unknown',
         actions:changes.length > 0 ? changes : ['Routine check - no changes'],
         notes
       };
@@ -1301,13 +1884,7 @@
       $('backVisit').addEventListener('click',()=>{
         if(fromDetail&&current){ openDetail(current); } else { show('main'); }
       });
-      $('openVisit').addEventListener('click',()=>{
-        fromDetail=true;
-        show('visit');
-        $('visitSel').style.display='none';
-        $('selVenue').innerHTML=`<option value="${current}">Current: ${esc(venues.find(v=>v.id===current).name)}</option>`;
-        buildToggles();
-      });
+      // Removed static openVisit listener - now handled dynamically in openDetail
       $('addBtn').addEventListener('click',addVenue);
       $('saveVisit').addEventListener('click',saveVisit);
     }
@@ -1331,15 +1908,39 @@
         }
 
         // Sanitize inputs
-        const sanitizedEmail = sanitizeInput(emailInput);
+        const sanitizedEmail = sanitizeInput(emailInput).toLowerCase();
 
+        // Detect role and region based on email
+        if(sanitizedEmail.includes('manager')) {
+          userRole = 'manager';
+          userRegion = 'all';
+        } else {
+          userRole = 'ambassador';
+          // Extract region from email (e.g., john.bali@ -> bali)
+          const emailParts = sanitizedEmail.split('@')[0].split('.');
+          if(emailParts.length > 1) {
+            const region = emailParts[emailParts.length - 1];
+            // Map email region to actual region
+            if(region === 'bali') userRegion = 'bali';
+            else if(region === 'jakarta') userRegion = 'west-java';
+            else if(region === 'bandung') userRegion = 'west-java';
+            else if(region === 'surabaya') userRegion = 'east-java';
+            else if(region === 'malang') userRegion = 'east-java';
+            else userRegion = 'bali'; // Default region for ambassadors
+          } else {
+            userRegion = 'bali'; // Default region
+          }
+        }
+
+        console.log('Processing login:', sanitizedEmail, 'Role:', userRole, 'Region:', userRegion);
         btn.disabled = true;
         btn.innerHTML = '<span class="icon">'+ICONS.user+'</span><span>Authenticating...</span>';
 
         // Simulate authentication delay
         setTimeout(() => {
           console.log('Authentication timeout executing...');
-          user={name:'Demo User',realName:'',email:sanitizedEmail};
+          const userName = sanitizedEmail.split('@')[0].split('.').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' ');
+          user={name:userName,realName:userName,email:sanitizedEmail,role:userRole,region:userRegion};
           const had=load();
           console.log('Data loaded from storage:', had);
           if(!had) {
@@ -1350,13 +1951,32 @@
           // Fix data integrity after loading
           fixDataIntegrity();
 
+          // Set selectedRegion based on user role
+          if(userRole === 'ambassador') {
+            selectedRegion = userRegion;
+          }
+
           btn.disabled = false;
           btn.innerHTML = '<span class="icon">'+ICONS.user+'</span><span>Sign In</span>';
           show('main');
+
+          // Update navigation based on role
+          setupRoleBasedNav();
+
+          // Set initial tab based on role
+          // Both roles start on venues tab
           setTab('venues');
 
-          // Show welcome message
-          setTimeout(() => showToast('Welcome to JÄGERMEISTER Pulse'), 300);
+          // Show welcome message with role
+          const roleText = userRole === 'manager' ? 'Manager Mode' : `Ambassador - ${userRegion.charAt(0).toUpperCase() + userRegion.slice(1).replace('-',' ')}`;
+
+          // Update role indicator
+          const roleIndicator = $('roleIndicator');
+          if(roleIndicator) {
+            roleIndicator.textContent = roleText;
+          }
+
+          setTimeout(() => showToast(`Welcome ${userName} (${roleText})`), 300);
         }, 800);
       } catch(e) {
         console.error('Login error:', e);
@@ -1366,20 +1986,80 @@
       }
     }
 
+    // Setup navigation based on user role
+    function setupRoleBasedNav(){
+      const nav = $('nav');
+      // Both roles have the same navigation now
+      nav.innerHTML = `
+        <div class="it active" data-tab="venues"><span class="icon" data-i="location"></span>Venues</div>
+        <div class="it" data-tab="visits"><span class="icon" data-i="clipboard"></span>Visits</div>
+        <div class="it" data-tab="statistics"><span class="icon" data-i="chart"></span>Statistics</div>
+        <div class="it" data-tab="settings"><span class="icon" data-i="settings"></span>Settings</div>
+      `;
+      // Re-init icons and event listeners
+      initIcons();
+      qsa('#nav .it').forEach(n=>n.addEventListener('click',()=>setTab(n.dataset.tab)));
+    }
+
     // Init
     function init(){
       console.log('Initializing app...');
       try {
         setupNav();
         initIcons();
+
+        // Setup login handlers
         const loginBtn = $('loginBtn');
         if(loginBtn) {
           loginBtn.addEventListener('click', login);
           console.log('Login button handler attached');
-        } else {
-          console.error('Login button not found!');
         }
-        $('pass').addEventListener('keydown',e=>{ if(e.key==='Enter') login(); });
+
+        // Quick login buttons
+        const managerQuickLogin = $('managerQuickLogin');
+        if(managerQuickLogin) {
+          managerQuickLogin.addEventListener('click', ()=>{
+            // Animate button click
+            managerQuickLogin.style.transform = 'scale(0.95)';
+            setTimeout(()=>managerQuickLogin.style.transform = '', 200);
+
+            // Auto-login as manager
+            $('email').value = 'manager@jager.com';
+            $('pass').value = 'password';
+            setTimeout(login, 300);
+          });
+        }
+
+        const ambassadorQuickLogin = $('ambassadorQuickLogin');
+        if(ambassadorQuickLogin) {
+          ambassadorQuickLogin.addEventListener('click', ()=>{
+            // Animate button click
+            ambassadorQuickLogin.style.transform = 'scale(0.95)';
+            setTimeout(()=>ambassadorQuickLogin.style.transform = '', 200);
+
+            // Auto-login as ambassador (John Smith from Bali)
+            $('email').value = 'john.bali@jager.com';
+            $('pass').value = 'password';
+            setTimeout(login, 300);
+          });
+        }
+
+        // Custom login collapsible
+        const customLoginSection = $('customLoginSection');
+        if(customLoginSection) {
+          const header = customLoginSection.querySelector('.collapsible-header');
+          if(header) {
+            header.addEventListener('click', ()=>{
+              customLoginSection.classList.toggle('open');
+            });
+          }
+        }
+
+        const passField = $('pass');
+        if(passField) {
+          passField.addEventListener('keydown',e=>{ if(e.key==='Enter') login(); });
+        }
+
         console.log('App initialized successfully');
       } catch(e) {
         console.error('Init error:', e);
