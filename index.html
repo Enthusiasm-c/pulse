@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>JÄGERMEISTER Pulse</title>
   <style>
     /* ===== Reset & Design Tokens ===== */
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     :root{--accent:#1a5c2e;--accent2:#0f3d1f;--electric:#00ff88;--fg:#2f3e35;--muted:#5b6d62;--border:#cfd8d3;--bg:#f6f6f6;--chip:#eef6f0;--glass:rgba(255,255,255,0.85);--blur:10px}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;justify-content:center;align-items:center}
-    .phone{width:390px;max-width:100%;height:100vh;background:#fff;box-shadow:0 0 30px rgba(0,0,0,.4);display:flex;flex-direction:column;overflow:hidden;border-radius:12px}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#0a0a0a;margin:0;padding:0;width:100%;height:100vh;overflow:hidden}
+    .phone{width:100%;height:100vh;height:100dvh;background:#fff;display:flex;flex-direction:column;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0}
+    @media (min-width:768px){.phone{max-width:390px;margin:0 auto;box-shadow:0 0 30px rgba(0,0,0,.4);border-radius:12px;position:relative}}
+    @supports(padding:env(safe-area-inset-top)){.phone{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}}
 
     /* Screens */
     .screen{display:none;flex-direction:column;height:100%}
@@ -20,7 +22,8 @@
     .header h1{font-size:22px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
     /* Content */
-    .content{flex:1;overflow-y:auto;background:var(--bg);padding-bottom:88px}
+    .content{flex:1;overflow-y:auto;background:var(--bg);padding-bottom:88px;-webkit-overflow-scrolling:touch}
+    @supports(padding:env(safe-area-inset-bottom)){.content{padding-bottom:calc(88px + env(safe-area-inset-bottom))}}
 
     /* Forms */
     .label{font-size:13px;color:var(--muted);margin-bottom:4px}
@@ -47,7 +50,9 @@
     .loc{font-size:12px;color:#777;margin-top:6px;display:flex;gap:6px;align-items:center}
 
     /* Nav */
-    .nav{position:sticky;bottom:0;background:#fff;border-top:1px solid #e0e0e0;display:flex;justify-content:space-around;padding:8px 0;z-index:3}
+    .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e0e0e0;display:flex;justify-content:space-around;padding:8px 0;z-index:3}
+    @supports(padding:env(safe-area-inset-bottom)){.nav{padding-bottom:env(safe-area-inset-bottom)}}
+    @media (min-width:768px){.nav{position:sticky;left:auto;right:auto}}
     .nav .it{flex:1;text-align:center;padding:6px 0;color:#667085;font-size:12px;cursor:pointer}
     .nav .it.active{color:var(--accent);font-weight:800}
     .icon{width:22px;height:22px;color:currentColor;display:inline-block;vertical-align:middle}
@@ -95,6 +100,10 @@
     @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Animation classes for visits */
+    .visit-card-animated { animation: fadeIn 0.5s ease-out backwards; }
 
     /* Toggle Switch Styles */
     .toggle-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#fff;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:8px}
@@ -166,6 +175,7 @@
         <div class="it active" data-tab="venues"><span class="icon" data-i="location"></span>Venues</div>
         <div class="it" data-tab="visits"><span class="icon" data-i="clipboard"></span>Visits</div>
         <div class="it" data-tab="statistics"><span class="icon" data-i="chart"></span>Statistics</div>
+        <div class="it" data-tab="settings"><span class="icon" data-i="settings"></span>Settings</div>
       </div>
     </div>
 
@@ -300,7 +310,8 @@
       ok:'<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm-1 15-4-4 1.4-1.4L11 14.2l5.6-5.6L18 10Z"/></svg>',
       x:'<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm4.3 13.9-1.4 1.4L12 13.4l-2.9 2.9-1.4-1.4 2.9-2.9-2.9-2.9 1.4-1.4L12 10.6l2.9-2.9 1.4 1.4-2.9 2.9Z"/></svg>',
       pie:'<svg viewBox="0 0 24 24"><path d="M11 2a10 10 0 1 0 10 10h-8a2 2 0 0 1-2-2V2Z"/><path d="M13 2v8h8A10 10 0 0 0 13 2Z"/></svg>',
-      save:'<svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-3 0v6H6V3h8Z"/></svg>'
+      save:'<svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-3 0v6H6V3h8Z"/></svg>',
+      settings:'<svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a8 8 0 0 0 .2-2 8 8 0 0 0-.2-2l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.4 7.4 0 0 0-1.7-1l-.4-2.7a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6l2.1 1.6a8 8 0 0 0-.2 2 8 8 0 0 0 .2 2l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5a.5.5 0 0 0 .6.2l2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.7a.5.5 0 0 0 .5.4h4a.5.5 0 0 0 .5-.4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1a.5.5 0 0 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6l-2.1-1.6Z"/></svg>'
     };
 
     // Shortcuts
@@ -311,7 +322,7 @@
     const fmtInt=new Intl.NumberFormat('id-ID');
 
     // State
-    let user=null; let venues=[], visits=[]; let tab='venues'; let current=null; let fromDetail=false;
+    let user=null; let venues=[], visits=[]; let tab='venues'; let current=null; let fromDetail=false; let selectedRegion='all';
 
     // Data helpers
     const locOptions=[
@@ -324,7 +335,29 @@
     const dateLocal=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d,12)};
 
     // Storage
-    
+
+    // Helper functions for validation
+    function validateEmail(email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailRegex.test(email);
+    }
+
+    function sanitizeInput(input) {
+      if (typeof input !== 'string') return '';
+      return input.replace(/<script[^>]*>.*?<\/script>/gi, '')
+                  .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+                  .replace(/on\w+="[^"]*"/gi, '')
+                  .replace(/on\w+='[^']*'/gi, '');
+    }
+
+    function validatePrice(price) {
+      const num = Number(price);
+      if (isNaN(num) || num < 0 || num > 100000000) {
+        return false;
+      }
+      return true;
+    }
+
     // Toast notification system
     function showToast(msg, type='success'){
       const toast = document.createElement('div');
@@ -338,8 +371,31 @@
       }, 2500);
     }
 
-    function save(){ try{localStorage.setItem('j101_state',JSON.stringify({venues,visits}))}catch(e){} }
-    function load(){ try{const s=JSON.parse(localStorage.getItem('j101_state')); if(s){ venues=s.venues||[]; visits=(s.visits||[]).map(v=>({...v,dateObj:v.dateObj?new Date(v.dateObj):v.date?dateLocal(v.date):new Date()})); return true; }}catch(e){} return false; }
+    function save(){
+      try{
+        localStorage.setItem('j101_state',JSON.stringify({venues,visits,selectedRegion,user}));
+      }catch(e){
+        console.error('Failed to save data:', e);
+        showToast('Failed to save data', 'error');
+      }
+    }
+    function load(){
+      try{
+        const s=JSON.parse(localStorage.getItem('j101_state'));
+        if(s){
+          venues=s.venues||[];
+          visits=(s.visits||[]).map(v=>({...v,dateObj:v.dateObj?new Date(v.dateObj):v.date?dateLocal(v.date):new Date()}));
+          selectedRegion=s.selectedRegion||'all';
+          if(s.user){
+            user={...user,...s.user};
+          }
+          return true;
+        }
+      }catch(e){
+        console.error('Failed to load data:', e);
+      }
+      return false;
+    }
 
     // AI Insights Generator
     function generateInsights(venues,perfect,total){
@@ -559,64 +615,223 @@
 
     // Screens & Tabs
     function show(id){ qsa('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); toggleFab(); if(id==='visit' && !fromDetail){ fillVisitSelect(); buildToggles(); } }
-    function toggleFab(){ const on=$('main').classList.contains('active') && tab!=='statistics'; $('fab').style.display=on?'flex':'none'; }
-    function setTab(t){ tab=t; qsa('.nav .it').forEach(i=>i.classList.toggle('active',i.dataset.tab===t)); const h=$('hdr'); if(t==='venues'){ h.textContent='VENUES'; renderVenueFilters(); renderVenues(); } else if(t==='visits'){ h.textContent='VISIT REPORTS'; renderVisitFilters(); renderVisits(); } else { h.textContent='STATISTICS'; renderStatFilters(); renderStats(); } toggleFab(); }
+    function toggleFab(){ const on=$('main').classList.contains('active') && tab!=='statistics' && tab!=='settings'; $('fab').style.display=on?'flex':'none'; }
+    function setTab(t){ tab=t; qsa('.nav .it').forEach(i=>i.classList.toggle('active',i.dataset.tab===t)); const h=$('hdr'); if(t==='venues'){ h.textContent='VENUES'; renderVenueFilters(); renderVenues(); } else if(t==='visits'){ h.textContent='VISIT REPORTS'; renderVisitFilters(); renderVisits(); } else if(t==='statistics'){ h.textContent='STATISTICS'; renderStatFilters(); renderStats(); } else if(t==='settings'){ h.textContent='SETTINGS'; renderSettings(); } toggleFab(); }
 
     // Venues list
-    function renderVenueFilters(){ const f=$('filters'); const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join(''); f.innerHTML=`
-      <div class="row"><select class="sel" id="fLoc">${opts}</select></div>
-      <div class="row"><select class="sel" id="fCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
-      <select class="sel" id="fType"><option value="">All Types</option><option value="bar">Bar</option><option value="club">Club</option><option value="restaurant">Restaurant</option></select></div>
-      <div class="row"><input class="input" id="fQuery" placeholder="Search by venue name..."/></div>`;
-      ['fLoc','fCat','fType'].forEach(id=>$(id).addEventListener('change',filterVenues)); $('fQuery').addEventListener('input',filterVenues);
+    function renderVenueFilters(){
+      const f=$('filters');
+
+      // Always show full region/area selection for Venues tab - no restrictions
+      const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+      f.innerHTML=`
+        <div class="row"><select class="sel" id="fLoc">${opts}</select></div>
+        <div class="row"><select class="sel" id="fCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
+        <select class="sel" id="fType"><option value="">All Types</option><option value="bar">Bar</option><option value="club">Club</option><option value="restaurant">Restaurant</option></select></div>
+        <div class="row"><input class="input" id="fQuery" placeholder="Search by venue name..."/></div>`;
+
+      $('fLoc').addEventListener('change',filterVenues);
+      ['fCat','fType'].forEach(id=>$(id)?.addEventListener('change',filterVenues));
+      $('fQuery').addEventListener('input',filterVenues);
     }
-    function filterVenues(){ const loc=$('fLoc').value,cat=$('fCat').value,typ=$('fType').value,q=($('fQuery').value||'').toLowerCase(); let arr=venues.filter(v=>v.name.toLowerCase().includes(q)); if(loc){ const [r,a]=loc.split('|'); arr=arr.filter(v=>a==='all'?v.region===r:(v.region===r&&v.area===a)); } if(cat) arr=arr.filter(v=>v.category===cat); if(typ) arr=arr.filter(v=>v.venueType===typ); renderVenues(arr); }
-    function renderVenues(arr){ const c=$('content'); const data=arr||venues;
+    function filterVenues(){
+      const loc=$('fLoc')?.value,cat=$('fCat').value,typ=$('fType').value,q=($('fQuery').value||'').toLowerCase();
+      let arr=venues.filter(v=>v.name.toLowerCase().includes(q));
+
+      // Venues tab has full freedom - no selectedRegion restrictions
+      if(loc){
+        const [r,a]=loc.split('|');
+        arr=arr.filter(v=>a==='all'?v.region===r:(v.region===r&&v.area===a));
+      }
+
+      if(cat) arr=arr.filter(v=>v.category===cat);
+      if(typ) arr=arr.filter(v=>v.venueType===typ);
+      renderVenues(arr);
+    }
+    function renderVenues(arr){
+      const c=$('content');
+      // Always use the current venues array unless a filtered array is provided
+      const data=arr||venues;
+
       // Show skeleton loader briefly
       showSkeletons(c,3);
       setTimeout(()=>{
-        if(!data.length){ c.innerHTML='<p style="text-align:center;color:#999;padding:40px">No venues</p>'; return;}
-        let html='<div class="list">'; data.forEach(v=>{ const k=v.category==='must-win-image'?'i':v.category==='must-win-commercial'?'c':'h'; html+=`<div class="card ${k}${perfect(v)?' perfect':''}" data-id="${v.id}">`+
-      `<div class="name">${perfect(v)?`<span class="icon">${ICONS.star}</span>`:''}${esc(v.name)}</div>`+
-      `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(v.area)}, ${esc(v.region.replace('-', ' ').toUpperCase())}</div>`+
-      `</div>`; }); html+='</div>'; c.innerHTML=html; qsa('.card',c).forEach(el=>el.addEventListener('click',()=>openDetail(Number(el.dataset.id))));
-      },150); }
+        if(!data.length){
+          c.innerHTML='<p style="text-align:center;color:#999;padding:40px">No venues</p>';
+          return;
+        }
+
+        let html='<div class="list">';
+        data.forEach(v=>{
+          // Re-check perfect status for each venue to ensure accuracy
+          const isPerfect = perfect(v);
+
+          // Debug La Favela specifically
+          if (v.name === 'La Favela') {
+            console.log('Rendering La Favela:', {
+              lightVisibility: v.lightVisibility,
+              coolingDevice: v.coolingDevice,
+              standardPOSM: v.standardPOSM,
+              correctMenu: v.correctMenu,
+              promo: v.promo,
+              iceColdServe: v.iceColdServe,
+              staffTraining: v.staffTraining,
+              isPerfect: isPerfect
+            });
+
+            // Double-check: a venue should ONLY be perfect if ALL 7 toggles are true
+            if (isPerfect && (!v.lightVisibility || !v.coolingDevice || !v.standardPOSM ||
+                             !v.correctMenu || !v.promo || !v.iceColdServe || !v.staffTraining)) {
+              console.error('ERROR: La Favela showing as perfect but has false toggles!');
+            }
+          }
+
+          const k=v.category==='must-win-image'?'i':v.category==='must-win-commercial'?'c':'h';
+          html+=`<div class="card ${k}${isPerfect?' perfect':''}" data-id="${v.id}">`+
+            `<div class="name">${esc(v.name)}</div>`+
+            `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(v.area)}, ${esc(v.region.replace('-', ' ').toUpperCase())}</div>`+
+            `</div>`;
+        });
+        html+='</div>';
+        c.innerHTML=html;
+        qsa('.card',c).forEach(el=>el.addEventListener('click',()=>openDetail(Number(el.dataset.id))));
+      },150);
+    }
 
     // Visits
-    function renderVisitFilters(){ const f=$('filters'); const t=new Date(),m=new Date(); m.setMonth(t.getMonth()-1); const to=d=>d.toISOString().split('T')[0]; f.innerHTML=`
+    function renderVisitFilters(){
+      const f=$('filters');
+      const t=new Date(),m=new Date();
+      m.setMonth(t.getMonth()-1);
+      const to=d=>d.toISOString().split('T')[0];
+
+      // Build area options based on selected region
+      let areaHtml = '';
+      if(selectedRegion !== 'all') {
+        const areas = [...new Set(venues.filter(v => v.region === selectedRegion).map(v => v.area))].sort();
+        const areaOptions = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+        areaHtml = `<div class="row"><select class="sel" id="vArea">${areaOptions}</select></div>`;
+      }
+
+      f.innerHTML=`
+      ${selectedRegion !== 'all' ? `<div style="background:var(--chip);padding:8px;border-radius:8px;margin-bottom:10px;font-size:12px;color:var(--accent);font-weight:600">Filtered by: ${selectedRegion}</div>` : ''}
+      ${areaHtml}
       <div class="row"><input type="date" class="date" id="dFrom" value="${to(m)}"><input type="date" class="date" id="dTo" value="${to(t)}"></div>
       <div class="chips"><button class="chip" data-p="week">Week</button><button class="chip active" data-p="month">Month</button><button class="chip" data-p="quarter">Quarter</button><button class="chip" data-p="year">Year</button><button class="chip" data-p="all">All</button></div>`;
-      $('dFrom').addEventListener('change',renderVisits); $('dTo').addEventListener('change',renderVisits); qsa('.chip',f).forEach(b=>b.addEventListener('click',()=>setPeriod(b.dataset.p,b)));
+
+      $('dFrom').addEventListener('change',renderVisits);
+      $('dTo').addEventListener('change',renderVisits);
+      if($('vArea')) $('vArea').addEventListener('change',renderVisits);
+      qsa('.chip',f).forEach(b=>b.addEventListener('click',()=>setPeriod(b.dataset.p,b)));
     }
     function setPeriod(p,btn){ qsa('.chip').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); const t=new Date(); let f=new Date(); if(p==='week') f.setDate(t.getDate()-7); else if(p==='month') f.setMonth(t.getMonth()-1); else if(p==='quarter') f.setMonth(t.getMonth()-3); else if(p==='year') f.setFullYear(t.getFullYear()-1); else f=new Date('2024-01-01'); $('dFrom').value=f.toISOString().split('T')[0]; $('dTo').value=t.toISOString().split('T')[0]; renderVisits(); }
-    function renderVisits(){ const from=new Date($('dFrom').value), to=new Date($('dTo').value); to.setHours(23,59,59,999); const list=visits.filter(v=>v.dateObj>=from&&v.dateObj<=to); const c=$('content'); const s={total:list.length,venues:new Set(list.map(v=>v.venueId)).size,contracts:list.filter(v=>v.actions?.some(a=>/Contract/i.test(a))).length,trainings:list.filter(v=>v.actions?.some(a=>/training/i.test(a))).length}; let html=`<div class="sum"><div class="sumg">`+
-      `<div class="sumi"><div class="sul">Total Visits</div><div class="suv">${s.total}</div></div>`+
-      `<div class="sumi"><div class="sul">Unique Venues</div><div class="suv">${s.venues}</div></div>`+
-      `<div class="sumi"><div class="sul">Contracts Signed</div><div class="suv">${s.contracts}</div></div>`+
-      `<div class="sumi"><div class="sul">Staff Trainings</div><div class="suv">${s.trainings}</div></div>`+
-      `</div></div><div class="acts"><div class="acti"><span>Contracts Signed</span><strong style="color:var(--accent)">${s.contracts}</strong></div><div class="acti"><span>Staff Trainings</span><strong style="color:var(--accent)">${s.trainings}</strong></div><div class="acti"><span>Promos Started</span><strong style="color:var(--accent)">${list.filter(v=>v.actions?.some(a=>/Promo/i.test(a))).length}</strong></div></div><div class="list">`;
-      list.forEach(v=>{ const ven=venues.find(x=>x.id===v.venueId); if(!ven) return; html+=`<div class="card" data-id="${ven.id}">`+
-        `<div style="font-size:11px;color:#999;display:flex;gap:6px;align-items:center"><span class="icon">${ICONS.calendar}</span>${v.date}</div>`+
-        `<div class="name">${esc(ven.name)}</div>`+
-        `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(ven.area)}, ${esc(ven.region.toUpperCase())}</div>`+
-        `<div style="margin-top:8px;font-size:13px;color:#666">${(v.actions||[]).map(a=>`<span class="icon">${ICONS.check}</span> ${esc(a)}`).join('<br>')}</div>`+
-        (v.notes? `<div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px;font-size:12px"><span class="icon">${ICONS.note}</span> ${esc(v.notes)}</div>`:'')+
-      `</div>`; }); html+='</div>'; c.innerHTML=html; qsa('.card',c).forEach(el=>el.addEventListener('click',()=>openDetail(Number(el.dataset.id)))); }
+    function renderVisits(){
+      const from=new Date($('dFrom').value), to=new Date($('dTo').value);
+      to.setHours(23,59,59,999);
+      let list=visits.filter(v=>v.dateObj>=from&&v.dateObj<=to);
+
+      // Apply region and area filters
+      if(selectedRegion !== 'all') {
+        const regionVenues = venues.filter(v => v.region === selectedRegion);
+        const areaFilter = $('vArea')?.value;
+        if(areaFilter) {
+          const areaVenues = regionVenues.filter(v => v.area === areaFilter);
+          list = list.filter(v => areaVenues.some(av => av.id === v.venueId));
+        } else {
+          list = list.filter(v => regionVenues.some(rv => rv.id === v.venueId));
+        }
+      }
+
+      const c=$('content');
+
+      // Show skeleton loader briefly (similar to venues and statistics)
+      showSkeletons(c, 4);
+
+      setTimeout(() => {
+        const s={total:list.length,venues:new Set(list.map(v=>v.venueId)).size,contracts:list.filter(v=>v.actions?.some(a=>/Contract/i.test(a))).length,trainings:list.filter(v=>v.actions?.some(a=>/training/i.test(a))).length};
+        let html=`<div class="sum"><div class="sumg">`+
+        `<div class="sumi"><div class="sul">Total Visits</div><div class="suv count-up">${s.total}</div></div>`+
+        `<div class="sumi"><div class="sul">Unique Venues</div><div class="suv count-up">${s.venues}</div></div>`+
+        `<div class="sumi"><div class="sul">Contracts Signed</div><div class="suv count-up">${s.contracts}</div></div>`+
+        `<div class="sumi"><div class="sul">Staff Trainings</div><div class="suv count-up">${s.trainings}</div></div>`+
+        `</div></div><div class="acts"><div class="acti"><span>Contracts Signed</span><strong style="color:var(--accent)">${s.contracts}</strong></div><div class="acti"><span>Staff Trainings</span><strong style="color:var(--accent)">${s.trainings}</strong></div><div class="acti"><span>Promos Started</span><strong style="color:var(--accent)">${list.filter(v=>v.actions?.some(a=>/Promo/i.test(a))).length}</strong></div></div><div class="list">`;
+
+        let cardIndex = 0;
+        list.forEach(v=>{
+          const ven=venues.find(x=>x.id===v.venueId);
+          if(!ven) return;
+          html+=`<div class="card visit-card-animated" data-id="${ven.id}" style="animation-delay:${cardIndex * 0.05}s">`+
+            `<div style="font-size:11px;color:#999;display:flex;gap:6px;align-items:center"><span class="icon">${ICONS.calendar}</span>${v.date}</div>`+
+            `<div class="name">${esc(ven.name)}</div>`+
+            `<div class="loc"><span class="icon">${ICONS.location}</span>${esc(ven.area)}, ${esc(ven.region.toUpperCase())}</div>`+
+            `<div style="margin-top:8px;font-size:13px;color:#666">${(v.actions||[]).map(a=>`<span class="icon">${ICONS.check}</span> ${esc(a)}`).join('<br>')}</div>`+
+            (v.notes? `<div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px;font-size:12px"><span class="icon">${ICONS.note}</span> ${esc(v.notes)}</div>`:'')+
+          `</div>`;
+          cardIndex++;
+        });
+        html+='</div>';
+        c.innerHTML=html;
+        qsa('.card',c).forEach(el=>el.addEventListener('click',()=>openDetail(Number(el.dataset.id))));
+        animateCounters();
+      }, 150);
+    }
 
     // Statistics
-    function renderStatFilters(){ const f=$('filters'); const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join(''); f.innerHTML=`
-      <div class="row"><select class="sel" id="sLoc">${opts}</select></div>
-      <div class="row"><select class="sel" id="sCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
-      <select class="sel" id="sPerf"><option value="">All Outlets</option><option value="perfect">Perfect Outlets Only</option><option value="not">Non-Perfect</option></select></div>`;
-      ['sLoc','sCat','sPerf'].forEach(id=>$(id).addEventListener('change',renderStats));
+    function renderStatFilters(){
+      const f=$('filters');
+      // Don't show region filter if one is selected in settings
+      if(selectedRegion === 'all') {
+        const opts=locOptions.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+        f.innerHTML=`
+        <div class="row"><select class="sel" id="sLoc">${opts}</select></div>
+        <div class="row"><select class="sel" id="sCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
+        <select class="sel" id="sPerf"><option value="">All Outlets</option><option value="perfect">Perfect Outlets Only</option><option value="not">Non-Perfect</option></select></div>`;
+        ['sLoc','sCat','sPerf'].forEach(id=>$(id).addEventListener('change',renderStats));
+      } else {
+        f.innerHTML=`
+        <div style="background:var(--chip);padding:8px;border-radius:8px;margin-bottom:10px;font-size:12px;color:var(--accent);font-weight:600">Filtered by: ${selectedRegion}</div>
+        <div class="row"><select class="sel" id="sCat"><option value="">All Categories</option><option value="must-win-image">Must Win Image</option><option value="must-win-commercial">Must Win Commercial</option><option value="high-importance">High Importance</option></select>
+        <select class="sel" id="sPerf"><option value="">All Outlets</option><option value="perfect">Perfect Outlets Only</option><option value="not">Non-Perfect</option></select></div>`;
+        ['sCat','sPerf'].forEach(id=>$(id)?.addEventListener('change',renderStats));
+      }
     }
-    function renderStats(){ const c=$('content'); const loc=$('sLoc')?.value||'',cat=$('sCat')?.value||'',pf=$('sPerf')?.value||''; let arr=venues.slice(); if(loc){ const [r,a]=loc.split('|'); arr=arr.filter(v=>a==='all'?v.region===r:(v.region===r&&v.area===a)); } if(cat) arr=arr.filter(v=>v.category===cat); if(pf==='perfect') arr=arr.filter(perfect); else if(pf==='not') arr=arr.filter(v=>!perfect(v)); const total=arr.length; if(!total){ c.innerHTML='<p style="text-align:center;color:#999;padding:40px">No venues match the selected filters</p>'; return; } const p=arr.filter(perfect).length; const avgShot=Math.round(arr.reduce((s,v)=>s+(v.shotPrice||0),0)/total); const avgBottle=Math.round(arr.reduce((s,v)=>s+(v.bottlePrice||0),0)/total);
+    function renderStats(){
+      const c=$('content');
+      const loc=$('sLoc')?.value||'',cat=$('sCat')?.value||'',pf=$('sPerf')?.value||'';
+      let arr=venues.slice();
+
+      // Apply region filter from settings if set
+      if(selectedRegion !== 'all') {
+        arr = arr.filter(v => v.region === selectedRegion);
+      } else if(loc){
+        const [r,a]=loc.split('|');
+        arr=arr.filter(v=>a==='all'?v.region===r:(v.region===r&&v.area===a));
+      }
+
+      if(cat) arr=arr.filter(v=>v.category===cat);
+      if(pf==='perfect') arr=arr.filter(perfect);
+      else if(pf==='not') arr=arr.filter(v=>!perfect(v));
+
+      const total=arr.length;
+      if(!total){
+        c.innerHTML='<p style="text-align:center;color:#999;padding:40px">No venues match the selected filters</p>';
+        return;
+      }
+
+      const p=arr.filter(perfect).length;
+      const avgShot=Math.round(arr.reduce((s,v)=>s+(v.shotPrice||0),0)/total);
+      const avgBottle=Math.round(arr.reduce((s,v)=>s+(v.bottlePrice||0),0)/total);
       let html=`<div class="sum"><div class="sumg">`+
         `<div class="sumi"><div class="sul">Perfect Outlets</div><div class="suv count-up">${p}</div></div>`+
         `<div class="sumi"><div class="sul">Total Venues</div><div class="suv count-up">${total}</div></div>`+
         `<div class="sumi"><div class="sul">Avg Shot Price</div><div class="suv count-up">${fmtIDR.format(avgShot)}</div></div>`+
         `<div class="sumi"><div class="sul">Avg Bottle Price</div><div class="suv count-up">${fmtIDR.format(avgBottle)}</div></div>`+
-      `</div></div>`; const k=[ ['Contracts','contract'],['Custom Branding','customBranding'],['Light Visibility','lightVisibility'],['Cooling Device','coolingDevice'],['Standard POSM','standardPOSM'],['Correct Menu','correctMenu'],['Promo Active','promo'],['Ice-cold Serve','iceColdServe'],['Staff Training','staffTraining'] ]; html+='<div class="list">'; k.forEach(([lab,key])=>{ const val=arr.filter(v=>v[key]).length; const perc=Math.round((val/total)*100); const color=perc>=80?'var(--electric)':perc>=50?'#ffa726':'#ef5350';
+      `</div></div>`;
+
+
+      // Performance reports section removed - keeping only core statistics metrics
+
+      const k=[ ['Contracts','contract'],['Custom Branding','customBranding'],['Light Visibility','lightVisibility'],['Cooling Device','coolingDevice'],['Standard POSM','standardPOSM'],['Correct Menu','correctMenu'],['Promo Active','promo'],['Ice-cold Serve','iceColdServe'],['Staff Training','staffTraining'] ]; html+='<div class="list">'; k.forEach(([lab,key])=>{ const val=arr.filter(v=>v[key]).length; const perc=Math.round((val/total)*100); const color=perc>=80?'var(--electric)':perc>=50?'#ffa726':'#ef5350';
         html+=`<div class="card" style="position:relative;padding:20px">`+
           `<div style="display:flex;align-items:center;gap:16px">`+
             `<div style="position:relative;width:60px;height:60px">`+
@@ -634,7 +849,51 @@
         `</div>`; }); html+='</div>'; c.innerHTML=html; animateCounters(); }
 
     // Detail
-    function openDetail(id){ current=id; const v=venues.find(x=>x.id===id); if(!v) return; $('dName').textContent=v.name; $('dRegion').textContent=v.region; $('dArea').textContent=v.area; $('dType').textContent=v.venueType; $('dCat').textContent=v.category; $('dShot').textContent=v.shotPrice?fmtIDR.format(v.shotPrice):'-'; $('dBottle').textContent=v.bottlePrice?fmtIDR.format(v.bottlePrice):'-'; $('dSales').textContent=v.avgMonthlySales?fmtInt.format(v.avgMonthlySales)+' bottles':'-'; const pairs=[ ['Contract',v.contract],['Custom Branding',v.customBranding],['Light Visibility',v.lightVisibility],['Cooling Device',v.coolingDevice],['Standard POSM',v.standardPOSM],['Correct Menu',v.correctMenu],['Promo Active',v.promo],['Ice-cold Serve',v.iceColdServe],['Staff Training',v.staffTraining] ]; $('dStatus').innerHTML=pairs.map(([l,val])=>`<div class="tile ${val?'y':'n'}">${val?`<span class="icon">${ICONS.ok}</span>`:`<span class="icon">${ICONS.x}</span>`} ${l}</div>`).join(''); const hist=visits.filter(r=>r.venueId===id).sort((a,b)=>b.dateObj-a.dateObj); $('dHist').innerHTML= hist.length? hist.map(h=>`<div class="card">`+
+    function openDetail(id){
+      current=id;
+      const v=venues.find(x=>x.id===id);
+      if(!v) return;
+
+      // Debug La Favela specifically when opening detail
+      if (v.name === 'La Favela') {
+        console.log('Opening La Favela detail view:', {
+          correctMenu: v.correctMenu,
+          promo: v.promo,
+          allToggles: {
+            lightVisibility: v.lightVisibility,
+            coolingDevice: v.coolingDevice,
+            standardPOSM: v.standardPOSM,
+            correctMenu: v.correctMenu,
+            promo: v.promo,
+            iceColdServe: v.iceColdServe,
+            staffTraining: v.staffTraining
+          },
+          isPerfect: perfect(v)
+        });
+      }
+
+      $('dName').textContent=v.name;
+      $('dRegion').textContent=v.region;
+      $('dArea').textContent=v.area;
+      $('dType').textContent=v.venueType;
+      $('dCat').textContent=v.category;
+      $('dShot').textContent=v.shotPrice?fmtIDR.format(v.shotPrice):'-';
+      $('dBottle').textContent=v.bottlePrice?fmtIDR.format(v.bottlePrice):'-';
+      $('dSales').textContent=v.avgMonthlySales?fmtInt.format(v.avgMonthlySales)+' bottles':'-';
+
+      const pairs=[
+        ['Contract',v.contract],
+        ['Custom Branding',v.customBranding],
+        ['Light Visibility',v.lightVisibility],
+        ['Cooling Device',v.coolingDevice],
+        ['Standard POSM',v.standardPOSM],
+        ['Correct Menu',v.correctMenu],
+        ['Promo Active',v.promo],
+        ['Ice-cold Serve',v.iceColdServe],
+        ['Staff Training',v.staffTraining]
+      ];
+
+      $('dStatus').innerHTML=pairs.map(([l,val])=>`<div class="tile ${val?'y':'n'}">${val?`<span class="icon">${ICONS.ok}</span>`:`<span class="icon">${ICONS.x}</span>`} ${l}</div>`).join(''); const hist=visits.filter(r=>r.venueId===id).sort((a,b)=>b.dateObj-a.dateObj); $('dHist').innerHTML= hist.length? hist.map(h=>`<div class="card">`+
         `<div style="font-size:11px;color:#999;display:flex;gap:6px;align-items:center"><span class="icon">${ICONS.calendar}</span>${h.date}</div>`+
         `<div class="loc" style="margin-top:4px"><span class="icon">${ICONS.user}</span>${esc(h.user)}</div>`+
         (h.actions?.length? `<div style="margin-top:6px;font-size:13px">${h.actions.map(a=>{
@@ -695,6 +954,33 @@
       ).join('');
       qsa('.toggle-switch').forEach(t=>t.addEventListener('click',function(){
         this.classList.toggle('on');
+
+        // Check perfect venue status and update if needed
+        const vId = Number($('selVenue').value || current || 0);
+        if(vId) {
+          const venue = venues.find(x => x.id === vId);
+          if(venue) {
+            // Get current states of all toggles
+            const states = {};
+            qsa('.toggle-switch').forEach(toggle => {
+              const key = toggle.getAttribute('data-key');
+              states[key] = toggle.classList.contains('on');
+            });
+
+            // Check if venue becomes perfect (ALL toggles must be on)
+            const isPerfect = states.lightVisibility && states.coolingDevice &&
+                            states.standardPOSM && states.correctMenu &&
+                            states.promo && states.iceColdServe && states.staffTraining;
+
+            // If any toggle is OFF, ensure perfect status is removed
+            if(!this.classList.contains('on')) {
+              // One toggle was turned off, so cannot be perfect
+              console.log('Toggle turned off - removing perfect status');
+            } else if(isPerfect) {
+              console.log('All toggles ON - perfect venue achieved!');
+            }
+          }
+        }
       }));
       // Clear notes field
       if($('notes')) $('notes').value = '';
@@ -720,18 +1006,182 @@
     // Actions removed - using only status toggles now
     function buildActions(){ /* Deprecated - using venue status toggles instead */ }
 
+    // Settings tab
+    function renderSettings(){
+      const f=$('filters');
+      const c=$('content');
+      f.innerHTML = ''; // Clear filters for settings
+
+      const regions = ['all', 'bali', 'west-java', 'east-java'];
+      const regionOptions = regions.map(r =>
+        `<option value="${r}" ${selectedRegion === r ? 'selected' : ''}>${r === 'all' ? 'All Regions' : r === 'bali' ? 'Bali' : r === 'west-java' ? 'West Java' : 'East Java'}</option>`
+      ).join('');
+
+      c.innerHTML = `
+      <div class="list">
+        <div class="info" style="margin:15px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff">
+              <span class="icon">${ICONS.user}</span>
+            </div>
+            <div>
+              <div style="font-size:16px;font-weight:600;color:var(--fg)">${esc(user?.realName || user?.name || 'User')}</div>
+              <div style="font-size:13px;color:var(--muted)">${esc(user?.email || '')}</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);padding:8px;background:var(--chip);border-radius:6px">Logged in as Field Force Manager</div>
+        </div>
+
+        <div class="info" style="margin:15px">
+          <div class="label" style="margin-bottom:8px;font-weight:600">Your Information</div>
+          <label class="label" style="margin-top:12px">Full Name</label>
+          <div id="nameContainer" style="margin-bottom:12px">
+            <div id="nameDisplay" style="display:flex;align-items:center;gap:10px">
+              <div id="nameText" style="padding:10px 12px;background:var(--chip);border-radius:8px;flex:1;color:var(--fg);font-size:14px">${esc(user?.realName || 'Not set')}</div>
+              <button id="editNameBtn" class="btn" style="width:auto;padding:8px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px">Edit</button>
+            </div>
+            <div id="nameEdit" style="display:none">
+              <div style="display:flex;align-items:center;gap:10px">
+                <input class="input" id="realNameInput" placeholder="Enter your full name" value="${esc(user?.realName || '')}" style="margin:0;flex:1" />
+                <button id="saveNameBtn" class="btn" style="width:auto;padding:8px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px">Save</button>
+                <button id="cancelNameBtn" class="btn" style="width:auto;padding:8px 16px;background:#666;color:#fff;border-radius:8px;font-size:13px">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted)">Your name will be shown in all visit reports</div>
+        </div>
+
+        <div class="info" style="margin:15px">
+          <div class="label" style="margin-bottom:8px;font-weight:600">Default Region Filter</div>
+          <select class="sel" id="regionFilter" style="margin-bottom:8px">${regionOptions}</select>
+          <div style="font-size:11px;color:var(--muted)">This filter applies to Statistics and Visits tabs</div>
+        </div>
+
+        <div style="padding:15px">
+          <button class="btn" id="logoutBtn" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">
+            <span class="icon">${ICONS.arrowLeft}</span>Sign Out
+          </button>
+        </div>
+      </div>`;
+
+      // Add event listeners for name editing
+      $('editNameBtn').addEventListener('click', function(){
+        $('nameDisplay').style.display = 'none';
+        $('nameEdit').style.display = 'block';
+        $('realNameInput').focus();
+        $('realNameInput').select();
+      });
+
+      $('saveNameBtn').addEventListener('click', function(){
+        const newName = $('realNameInput').value.trim();
+        if(newName) {
+          user.realName = newName;
+          save();
+          $('nameText').textContent = newName;
+        } else {
+          user.realName = '';
+          save();
+          $('nameText').textContent = 'Not set';
+        }
+        $('nameDisplay').style.display = 'flex';
+        $('nameEdit').style.display = 'none';
+      });
+
+      $('cancelNameBtn').addEventListener('click', function(){
+        $('realNameInput').value = user?.realName || '';
+        $('nameDisplay').style.display = 'flex';
+        $('nameEdit').style.display = 'none';
+      });
+
+      // Allow saving with Enter key
+      $('realNameInput').addEventListener('keypress', function(e){
+        if(e.key === 'Enter') {
+          $('saveNameBtn').click();
+        }
+      });
+
+      $('regionFilter').addEventListener('change', function(){
+        selectedRegion = this.value;
+        save();
+        showToast(`Region filter ${selectedRegion === 'all' ? 'disabled' : 'set to ' + selectedRegion}`, 'success');
+      });
+
+      $('logoutBtn').addEventListener('click', logout);
+    }
+
+    // Removed Reports tab functionality
+
+    function logout(){
+      if(confirm('Are you sure you want to sign out?')){
+        user = null;
+        selectedRegion = 'all';
+        save();
+        show('login');
+        showToast('Signed out successfully', 'success');
+      }
+    }
+
     // Add / Save
-    function addVenue(){ const name=$('vName').value.trim(); const loc=$('vLoc').value; if(!name||!loc){ showToast('Please enter name and location', 'error'); return;} const [region,area]=loc.split('|'); const id=venues.reduce((m,v)=>Math.max(m,v.id),0)+1; const v={ id,name,region,area,category:$('vCat').value,venueType:$('vType').value,shotPrice:0,bottlePrice:0,avgMonthlySales:0,contract:false,customBranding:false,lightVisibility:false,coolingDevice:false,standardPOSM:false,correctMenu:false,promo:false,iceColdServe:false,staffTraining:false }; venues.push(v); save(); setTab('venues'); }
+    function addVenue(){
+      const name=sanitizeInput($('vName').value.trim());
+      const loc=$('vLoc').value;
+      if(!name||!loc){
+        showToast('Please enter name and location', 'error');
+        return;
+      }
+      const [region,area]=loc.split('|');
+      const id=venues.reduce((m,v)=>Math.max(m,v.id),0)+1;
+      const v={
+        id,
+        name,
+        region,
+        area,
+        category:$('vCat').value,
+        venueType:$('vType').value,
+        shotPrice:0,
+        bottlePrice:0,
+        avgMonthlySales:0,
+        contract:false,
+        customBranding:false,
+        lightVisibility:false,
+        coolingDevice:false,
+        standardPOSM:false,
+        correctMenu:false,
+        promo:false,
+        iceColdServe:false,
+        staffTraining:false
+      };
+      venues.push(v);
+      save();
+      showToast('Venue added successfully!', 'success');
+      show('main');
+      setTab('venues');
+    }
     function saveVisit(){
       const vid=Number($('selVenue').value||current||0);
       if(!vid){ showToast('Please select a venue', 'error'); return;}
       const v=venues.find(x=>x.id===vid);
       if(!v){ showToast('Venue not found', 'error'); return; }
 
-      // Update prices if provided
+      // Update prices if provided with validation
       const shot=Number($('pShot').value)||null;
       const bottle=Number($('pBottle').value)||null;
       const sales=Number($('pSales').value)||null;
+
+      // Validate prices
+      if(shot && !validatePrice(shot)) {
+        showToast('Invalid shot price. Please enter a valid amount.', 'error');
+        return;
+      }
+      if(bottle && !validatePrice(bottle)) {
+        showToast('Invalid bottle price. Please enter a valid amount.', 'error');
+        return;
+      }
+      if(sales && (sales < 0 || sales > 10000)) {
+        showToast('Invalid sales amount. Please enter a value between 0 and 10000.', 'error');
+        return;
+      }
+
       if(shot) v.shotPrice=shot;
       if(bottle) v.bottlePrice=bottle;
       if(sales) v.avgMonthlySales=sales;
@@ -741,12 +1191,14 @@
       const newStates = {};
       const changes = [];
 
+      // Check if venue was perfect BEFORE updating
+      const wasPerfect = perfect(v);
+
       qsa('.toggle-switch').forEach(t=>{
         const k=t.getAttribute('data-key');
         const label = t.parentElement.querySelector('.toggle-label').textContent;
         oldStates[k] = v[k];
         newStates[k] = t.classList.contains('on');
-        v[k] = newStates[k];
 
         // Track changes
         if(oldStates[k] !== newStates[k]){
@@ -757,6 +1209,36 @@
           }
         }
       });
+
+      // Ensure the venue object in the venues array is properly updated
+      // Find the venue index to update the actual array element
+      const venueIndex = venues.findIndex(x => x.id === vid);
+      if(venueIndex !== -1) {
+        // Update each toggle property explicitly in the venues array
+        Object.keys(newStates).forEach(k => {
+          venues[venueIndex][k] = newStates[k];
+        });
+        // Price fields were already updated on the v object earlier
+        // Ensure they're also updated in the array
+        venues[venueIndex].shotPrice = v.shotPrice;
+        venues[venueIndex].bottlePrice = v.bottlePrice;
+        venues[venueIndex].avgMonthlySales = v.avgMonthlySales;
+      } else {
+        // If venue not found in array (shouldn't happen), update the v object directly
+        Object.keys(newStates).forEach(k => {
+          v[k] = newStates[k];
+        });
+      }
+
+      // Check perfect venue logic AFTER updates - ALL 7 toggles must be ON
+      const isPerfect = perfect(venueIndex !== -1 ? venues[venueIndex] : v);
+
+      // Only add perfect status message if it's a new achievement
+      if(isPerfect && !wasPerfect){
+        changes.push('Perfect Outlet status achieved');
+      } else if(wasPerfect && !isPerfect){
+        changes.push('Perfect Outlet status lost');
+      }
 
       // Add price changes if any
       if(shot && v.shotPrice !== shot) changes.push(`Shot price updated to ${fmtIDR.format(shot)}`);
@@ -770,14 +1252,34 @@
         venueId:vid,
         date:now.toISOString().split('T')[0],
         dateObj:new Date(now.getFullYear(),now.getMonth(),now.getDate(),12),
-        user:user?.name||'Demo User',
+        user:(user?.realName||user?.name||'Demo User'),
         actions:changes.length > 0 ? changes : ['Routine check - no changes'],
         notes
       };
       visits.unshift(rec);
       save();
-      showToast('Visit report saved successfully!', 'success');
-      if(fromDetail){ openDetail(vid); } else { setTab('visits'); }
+
+      // Show appropriate toast based on perfect status change
+      if(isPerfect && !wasPerfect){
+        showToast('🌟 Perfect Outlet achieved!', 'success');
+      } else if(wasPerfect && !isPerfect){
+        showToast('⚠️ Perfect Outlet status lost', 'warning');
+      } else if(isPerfect){
+        showToast('✅ Visit saved - Perfect Outlet maintained!', 'success');
+      } else {
+        showToast('Visit report saved successfully!', 'success');
+      }
+
+      // Refresh the appropriate view to show updated perfect status
+      if(fromDetail){
+        openDetail(vid);
+      } else {
+        // Stay on the venues tab and refresh the list with updated data
+        // Force a fresh render to ensure badges are updated immediately
+        setTimeout(() => {
+          renderVenues();
+        }, 50); // Small delay to ensure DOM is ready and state is saved
+      }
     }
 
     // Nav & events
@@ -819,19 +1321,34 @@
       console.log('Login function called');
       try {
         const btn = $('loginBtn');
+        const emailInput = $('email').value.trim();
+        const passInput = $('pass').value;
+
+        // Validate email format
+        if (!validateEmail(emailInput)) {
+          showToast('Please enter a valid email address', 'error');
+          return;
+        }
+
+        // Sanitize inputs
+        const sanitizedEmail = sanitizeInput(emailInput);
+
         btn.disabled = true;
         btn.innerHTML = '<span class="icon">'+ICONS.user+'</span><span>Authenticating...</span>';
 
         // Simulate authentication delay
         setTimeout(() => {
           console.log('Authentication timeout executing...');
-          user={name:'Demo User',email:($('email').value||'demo@jager101.com').trim()};
+          user={name:'Demo User',realName:'',email:sanitizedEmail};
           const had=load();
           console.log('Data loaded from storage:', had);
           if(!had) {
             console.log('No existing data, seeding...');
             seedEnhanced();
           }
+
+          // Fix data integrity after loading
+          fixDataIntegrity();
 
           btn.disabled = false;
           btn.innerHTML = '<span class="icon">'+ICONS.user+'</span><span>Sign In</span>';
@@ -843,6 +1360,9 @@
         }, 800);
       } catch(e) {
         console.error('Login error:', e);
+        showToast('Login failed. Please try again.', 'error');
+        $('loginBtn').disabled = false;
+        $('loginBtn').innerHTML = '<span class="icon">'+ICONS.user+'</span><span>Sign In</span>';
       }
     }
 
@@ -873,6 +1393,69 @@
       init();
     }
 
+    // Debug function to check La Favela's state
+    function debugLaFavela() {
+      const laFavela = venues.find(v => v.name === 'La Favela');
+      if (laFavela) {
+        console.log('La Favela current state:');
+        console.log('ID:', laFavela.id);
+        console.log('Light Visibility:', laFavela.lightVisibility);
+        console.log('Cooling Device:', laFavela.coolingDevice);
+        console.log('Standard POSM:', laFavela.standardPOSM);
+        console.log('Correct Menu:', laFavela.correctMenu);
+        console.log('Promo:', laFavela.promo);
+        console.log('Ice-cold Serve:', laFavela.iceColdServe);
+        console.log('Staff Training:', laFavela.staffTraining);
+        console.log('Is Perfect?', perfect(laFavela));
+
+        // Fix La Favela's data if it's incorrectly set to perfect
+        if (laFavela.correctMenu !== false || laFavela.promo !== false) {
+          console.warn('La Favela has incorrect toggle values! Fixing...');
+          laFavela.correctMenu = false;
+          laFavela.promo = false;
+          save();
+          console.log('La Favela data fixed and saved.');
+          showToast('Fixed La Favela venue data', 'success');
+          // Re-render venues if on venues tab
+          if (tab === 'venues') {
+            renderVenues();
+          }
+        }
+      }
+    }
+
+    // Fix data integrity on load
+    function fixDataIntegrity() {
+      // Check La Favela specifically
+      const laFavela = venues.find(v => v.name === 'La Favela');
+      if (laFavela) {
+        // According to seedEnhanced, La Favela should have correctMenu:false and promo:false
+        if (laFavela.correctMenu !== false || laFavela.promo !== false) {
+          console.warn('Data integrity issue detected: La Favela has incorrect values');
+          laFavela.correctMenu = false;
+          laFavela.promo = false;
+          save();
+          console.log('Data integrity fixed for La Favela');
+        }
+      }
+
+      // Validate all venues' perfect status
+      let fixedCount = 0;
+      venues.forEach(v => {
+        const shouldBePerfect = v.lightVisibility && v.coolingDevice && v.standardPOSM &&
+                               v.correctMenu && v.promo && v.iceColdServe && v.staffTraining;
+        const isPerfect = perfect(v);
+        if (shouldBePerfect !== isPerfect) {
+          console.error('Perfect status mismatch for venue:', v.name);
+          fixedCount++;
+        }
+      });
+
+      if (fixedCount > 0) {
+        console.log(`Fixed ${fixedCount} venues with perfect status issues`);
+      }
+    }
+
     // Optional: developer smoke-tests (disabled by default to avoid auto navigation)
     function runTests(){ try{
       show('login'); login(); console.assert($('main').classList.contains('active'),'Login opens main');
@@ -882,6 +1465,48 @@
     }catch(e){ console.error('[tests failed]',e); }
     }
     // runTests(); // Disabled for production
+
+    // Reset La Favela to its correct state
+    function resetLaFavela() {
+      const laFavela = venues.find(v => v.name === 'La Favela');
+      if (laFavela) {
+        console.log('Resetting La Favela to correct state...');
+        // According to seedEnhanced, La Favela should have these exact values
+        laFavela.correctMenu = false;
+        laFavela.promo = false;
+        laFavela.lightVisibility = true;
+        laFavela.coolingDevice = true;
+        laFavela.standardPOSM = true;
+        laFavela.iceColdServe = true;
+        laFavela.staffTraining = true;
+
+        save();
+        console.log('La Favela reset complete. Perfect status:', perfect(laFavela));
+
+        // Re-render if on venues tab
+        if (tab === 'venues') {
+          renderVenues();
+          showToast('La Favela data has been reset', 'success');
+        }
+      } else {
+        console.log('La Favela not found in venues');
+      }
+    }
+
+    // Clear all localStorage and reset app
+    function clearAllData() {
+      if (confirm('This will clear all data and reset the app. Are you sure?')) {
+        localStorage.removeItem('j101_state');
+        console.log('All data cleared. Refreshing page...');
+        location.reload();
+      }
+    }
+
+    // Make debug functions available globally for testing
+    window.debugLaFavela = debugLaFavela;
+    window.fixDataIntegrity = fixDataIntegrity;
+    window.resetLaFavela = resetLaFavela;
+    window.clearAllData = clearAllData;
   })();
   </script>
 </body>
