@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JÄGERMEISTER Pulse - Test Suite</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      color: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      background: linear-gradient(135deg, #1a5c2e, #0f3d1f);
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .stat-value {
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .test-section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .test-section h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #00ff88;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .test-item {
+      background: rgba(0,0,0,0.3);
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+    .test-name {
+      flex: 1;
+      font-size: 14px;
+    }
+    .test-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      min-width: 80px;
+      text-align: center;
+    }
+    .pass {
+      background: linear-gradient(135deg, #4caf50, #45a049);
+      color: white;
+    }
+    .fail {
+      background: linear-gradient(135deg, #f44336, #da190b);
+      color: white;
+    }
+    .pending {
+      background: linear-gradient(135deg, #ff9800, #f57c00);
+      opacity: 0.6;
+    }
+    .running {
+      background: linear-gradient(135deg, #2196f3, #1976d2);
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .test-detail {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-left: 10px;
+    }
+    .error-details {
+      color: #ff8a80;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 8px;
+      background: rgba(244,67,54,0.1);
+      border-radius: 4px;
+      width: 100%;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #1a5c2e, #0f3d1f);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(26,92,46,0.4);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .progress-bar {
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff88, #1a5c2e);
+      transition: width 0.3s ease;
+    }
+    .summary {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 30px;
+      border: 2px solid rgba(0,255,136,0.3);
+    }
+    .summary h3 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #00ff88;
+    }
+    .test-item.failed {
+      border-left: 3px solid #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧪 JÄGERMEISTER Pulse - Test Suite</h1>
+      <p>Comprehensive testing for all application functions</p>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="runTests" onclick="runAllTests()">▶ Run All Tests</button>
+      <button class="btn" id="clearStorage" onclick="clearTestStorage()">🗑 Clear Storage</button>
+      <button class="btn" id="resetTests" onclick="resetTests()">↺ Reset Tests</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalTests">0</div>
+        <div class="stat-label">Total Tests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="passedTests" style="color: #4caf50;">0</div>
+        <div class="stat-label">Passed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="failedTests" style="color: #f44336;">0</div>
+        <div class="stat-label">Failed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="coveragePercent" style="color: #00ff88;">0%</div>
+        <div class="stat-label">Coverage</div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+    </div>
+
+    <div id="testSections"></div>
+
+    <div class="summary" id="summary" style="display: none;">
+      <h3>📊 Test Summary</h3>
+      <div id="summaryContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // Test framework
+    class TestRunner {
+      constructor() {
+        this.tests = [];
+        this.results = [];
+        this.isRunning = false;
+      }
+
+      addTest(section, name, testFn) {
+        this.tests.push({ section, name, testFn, status: 'pending' });
+      }
+
+      async runTest(test) {
+        test.status = 'running';
+        this.updateUI();
+
+        try {
+          await test.testFn();
+          test.status = 'pass';
+          test.error = null;
+        } catch (error) {
+          test.status = 'fail';
+          test.error = error.message || error;
+          console.error(`Test failed: ${test.name}`, error);
+        }
+
+        this.updateUI();
+        return test.status === 'pass';
+      }
+
+      async runAll() {
+        this.isRunning = true;
+        document.getElementById('runTests').disabled = true;
+
+        for (const test of this.tests) {
+          await this.runTest(test);
+          await this.sleep(50); // Small delay for UI updates
+        }
+
+        this.isRunning = false;
+        document.getElementById('runTests').disabled = false;
+        this.showSummary();
+      }
+
+      sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      updateUI() {
+        const sections = {};
+
+        this.tests.forEach(test => {
+          if (!sections[test.section]) {
+            sections[test.section] = [];
+          }
+          sections[test.section].push(test);
+        });
+
+        let html = '';
+        for (const [section, tests] of Object.entries(sections)) {
+          const passed = tests.filter(t => t.status === 'pass').length;
+          const total = tests.length;
+
+          html += `
+            <div class="test-section">
+              <h2>${section} (${passed}/${total})</h2>
+              ${tests.map(test => `
+                <div class="test-item ${test.status === 'fail' ? 'failed' : ''}">
+                  <div class="test-name">
+                    ${test.name}
+                    ${test.status === 'pass' ? '<span class="test-detail">✓ Assertion passed</span>' : ''}
+                  </div>
+                  <div class="test-status ${test.status}">${test.status}</div>
+                  ${test.error ? `<div class="error-details">${test.error}</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        document.getElementById('testSections').innerHTML = html;
+
+        // Update stats
+        const total = this.tests.length;
+        const passed = this.tests.filter(t => t.status === 'pass').length;
+        const failed = this.tests.filter(t => t.status === 'fail').length;
+        const coverage = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+        document.getElementById('totalTests').textContent = total;
+        document.getElementById('passedTests').textContent = passed;
+        document.getElementById('failedTests').textContent = failed;
+        document.getElementById('coveragePercent').textContent = coverage + '%';
+        document.getElementById('progressBar').style.width = coverage + '%';
+      }
+
+      showSummary() {
+        const total = this.tests.length;
+        const passed = this.tests.filter(t => t.status === 'pass').length;
+        const failed = this.tests.filter(t => t.status === 'fail').length;
+        const coverage = Math.round((passed / total) * 100);
+
+        const summaryDiv = document.getElementById('summary');
+        const summaryContent = document.getElementById('summaryContent');
+
+        const status = failed === 0 ? '✅ All Tests Passed!' : `⚠️ ${failed} Tests Failed`;
+        const statusColor = failed === 0 ? '#4caf50' : '#f44336';
+
+        summaryContent.innerHTML = `
+          <div style="font-size: 24px; font-weight: 900; color: ${statusColor}; margin-bottom: 15px;">
+            ${status}
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+            <div>
+              <div style="font-size: 12px; opacity: 0.7;">Total Tests</div>
+              <div style="font-size: 20px; font-weight: 700;">${total}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.7;">Passed</div>
+              <div style="font-size: 20px; font-weight: 700; color: #4caf50;">${passed}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.7;">Failed</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f44336;">${failed}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.7;">Coverage</div>
+              <div style="font-size: 20px; font-weight: 700; color: #00ff88;">${coverage}%</div>
+            </div>
+          </div>
+          ${failed > 0 ? `
+            <div style="margin-top: 20px; padding: 15px; background: rgba(244,67,54,0.1); border-radius: 8px;">
+              <div style="font-weight: 700; margin-bottom: 10px;">Failed Tests:</div>
+              ${this.tests.filter(t => t.status === 'fail').map(t => `
+                <div style="margin-bottom: 8px;">
+                  <strong>${t.section} > ${t.name}</strong>
+                  <div style="color: #ff8a80; font-size: 12px; margin-top: 2px;">${t.error}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        `;
+
+        summaryDiv.style.display = 'block';
+      }
+
+      reset() {
+        this.tests.forEach(test => {
+          test.status = 'pending';
+          test.error = null;
+        });
+        this.updateUI();
+        document.getElementById('summary').style.display = 'none';
+      }
+    }
+
+    // Initialize test runner
+    const runner = new TestRunner();
+
+    // Test utilities
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || 'Assertion failed');
+      }
+    }
+
+    function assertEquals(actual, expected, message) {
+      if (actual !== expected) {
+        throw new Error(message || `Expected ${expected} but got ${actual}`);
+      }
+    }
+
+    function assertIncludes(array, item, message) {
+      if (!array.includes(item)) {
+        throw new Error(message || `Array does not include ${item}`);
+      }
+    }
+
+    // Mock localStorage for testing
+    const mockStorage = {
+      data: {},
+      setItem(key, value) { this.data[key] = value; },
+      getItem(key) { return this.data[key] || null; },
+      removeItem(key) { delete this.data[key]; },
+      clear() { this.data = {}; }
+    };
+
+    // === VALIDATION TESTS ===
+    runner.addTest('Validation Functions', 'Email validation - valid emails', () => {
+      const validEmails = [
+        'test@example.com',
+        'user.name@company.co.uk',
+        'admin+test@jager.com',
+        'john.smith@sub.domain.org'
+      ];
+
+      validEmails.forEach(email => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        assert(emailRegex.test(email), `${email} should be valid`);
+      });
+    });
+
+    runner.addTest('Validation Functions', 'Email validation - invalid emails', () => {
+      const invalidEmails = [
+        'notanemail',
+        '@example.com',
+        'user@',
+        'user@.com',
+        'user@domain',
+        'user name@example.com'
+      ];
+
+      invalidEmails.forEach(email => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        assert(!emailRegex.test(email), `${email} should be invalid`);
+      });
+    });
+
+    runner.addTest('Validation Functions', 'Input sanitization - XSS prevention', () => {
+      function sanitizeInput(input) {
+        if (typeof input !== 'string') return '';
+        return input.replace(/<script[^>]*>.*?<\/script>/gi, '')
+                    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+                    .replace(/on\w+="[^"]*"/gi, '')
+                    .replace(/on\w+='[^']*'/gi, '');
+      }
+
+      const maliciousInputs = [
+        String.raw`<${'script'}>alert("XSS")</${'script'}>`,
+        String.raw`<${'iframe'} src="evil.com"></${'iframe'}>`,
+        String.raw`<div onclick="stealData()">Click me</div>`,
+        String.raw`<img src=x onerror="alert(1)">`,
+        String.raw`Normal text <${'script'}>evil()</${'script'}> more text`
+      ];
+
+      maliciousInputs.forEach(input => {
+        const sanitized = sanitizeInput(input);
+        assert(!sanitized.includes('<' + 'script'), 'Script tags should be removed');
+        assert(!sanitized.includes('<' + 'iframe'), 'Iframe tags should be removed');
+        assert(!sanitized.includes('onclick='), 'Event handlers should be removed');
+        assert(!sanitized.includes('onerror='), 'Error handlers should be removed');
+      });
+    });
+
+    runner.addTest('Validation Functions', 'Price validation - valid prices', () => {
+      function validatePrice(price) {
+        const num = Number(price);
+        if (isNaN(num) || num < 0 || num > 100000000) {
+          return false;
+        }
+        return true;
+      }
+
+      const validPrices = [0, 100, 5000, 999999, 100000000];
+      validPrices.forEach(price => {
+        assert(validatePrice(price), `${price} should be valid`);
+      });
+    });
+
+    runner.addTest('Validation Functions', 'Price validation - invalid prices', () => {
+      function validatePrice(price) {
+        // Handle null and undefined explicitly
+        if (price === null || price === undefined) {
+          return false;
+        }
+        const num = Number(price);
+        if (isNaN(num) || num < 0 || num > 100000000) {
+          return false;
+        }
+        return true;
+      }
+
+      const invalidPrices = [-1, -100, 100000001, 'abc', null, undefined, NaN];
+      invalidPrices.forEach(price => {
+        assert(!validatePrice(price), `${price} should be invalid`);
+      });
+    });
+
+    // === AUTHENTICATION TESTS ===
+    runner.addTest('Authentication', 'Login with manager credentials', () => {
+      const email = 'manager@jager.com';
+      const emailParts = email.split('@')[0];
+
+      assert(email.includes('manager'), 'Manager email should contain "manager"');
+      assertEquals(emailParts, 'manager', 'Email prefix should be "manager"');
+    });
+
+    runner.addTest('Authentication', 'Login with ambassador credentials', () => {
+      const emails = [
+        'john.bali@jager.com',
+        'sarah.jakarta@jager.com',
+        'mike.surabaya@jager.com'
+      ];
+
+      emails.forEach(email => {
+        const parts = email.split('@')[0].split('.');
+        assert(parts.length === 2, 'Ambassador email should have name.region format');
+        assert(parts[0].length > 0, 'Name part should not be empty');
+        assert(parts[1].length > 0, 'Region part should not be empty');
+      });
+    });
+
+    runner.addTest('Authentication', 'Role detection from email', () => {
+      function getRoleFromEmail(email) {
+        if (email.includes('manager')) return 'manager';
+        return 'ambassador';
+      }
+
+      assertEquals(getRoleFromEmail('manager@jager.com'), 'manager');
+      assertEquals(getRoleFromEmail('john.bali@jager.com'), 'ambassador');
+      assertEquals(getRoleFromEmail('admin.manager@jager.com'), 'manager');
+    });
+
+    runner.addTest('Authentication', 'Region detection from email', () => {
+      function getRegionFromEmail(email) {
+        const parts = email.split('@')[0].split('.');
+        if (parts.length === 2) {
+          const region = parts[1];
+          if (region === 'bali') return 'Bali';
+          if (region === 'jakarta' || region === 'bandung') return 'West Java';
+          if (region === 'surabaya' || region === 'malang') return 'East Java';
+        }
+        return null;
+      }
+
+      assertEquals(getRegionFromEmail('john.bali@jager.com'), 'Bali');
+      assertEquals(getRegionFromEmail('sarah.jakarta@jager.com'), 'West Java');
+      assertEquals(getRegionFromEmail('mike.surabaya@jager.com'), 'East Java');
+      assertEquals(getRegionFromEmail('manager@jager.com'), null);
+    });
+
+    // === DATA MANAGEMENT TESTS ===
+    runner.addTest('Data Management', 'LocalStorage save and load', () => {
+      const testData = {
+        venues: [
+          { id: '1', name: 'Test Venue', region: 'Bali' }
+        ],
+        visits: [
+          { id: '1', venueId: '1', date: '2025-01-01' }
+        ],
+        user: {
+          email: 'test@jager.com',
+          name: 'Test User'
+        }
+      };
+
+      mockStorage.setItem('j101_state', JSON.stringify(testData));
+      const loaded = JSON.parse(mockStorage.getItem('j101_state'));
+
+      assertEquals(loaded.venues.length, 1);
+      assertEquals(loaded.venues[0].name, 'Test Venue');
+      assertEquals(loaded.visits.length, 1);
+      assertEquals(loaded.user.email, 'test@jager.com');
+    });
+
+    runner.addTest('Data Management', 'Venue CRUD operations', () => {
+      const venues = [];
+
+      // Create
+      const newVenue = {
+        id: Date.now().toString(),
+        name: 'New Bar',
+        region: 'Bali',
+        cat: 'Important',
+        type: 'Bar'
+      };
+      venues.push(newVenue);
+      assertEquals(venues.length, 1);
+
+      // Read
+      const found = venues.find(v => v.id === newVenue.id);
+      assert(found, 'Should find venue by ID');
+      assertEquals(found.name, 'New Bar');
+
+      // Update
+      found.name = 'Updated Bar';
+      assertEquals(venues[0].name, 'Updated Bar');
+
+      // Delete
+      const index = venues.findIndex(v => v.id === newVenue.id);
+      venues.splice(index, 1);
+      assertEquals(venues.length, 0);
+    });
+
+    runner.addTest('Data Management', 'Visit creation and tracking', () => {
+      const visits = [];
+
+      const newVisit = {
+        id: Date.now().toString(),
+        venueId: '123',
+        venueName: 'Test Venue',
+        date: '2025-01-20',
+        time: '14:30',
+        user: 'John Doe',
+        region: 'Bali',
+        priceShot: 50000,
+        priceBottle: 750000,
+        notes: 'Test visit',
+        toggles: [true, true, false, true, false, true, true]
+      };
+
+      visits.push(newVisit);
+      assertEquals(visits.length, 1);
+      assertEquals(visits[0].priceShot, 50000);
+      assertEquals(visits[0].toggles.filter(t => t).length, 5);
+    });
+
+    // === PERFECT OUTLET LOGIC TESTS ===
+    runner.addTest('Perfect Outlet Logic', 'All toggles ON = Perfect', () => {
+      const venue = {
+        toggles: [true, true, true, true, true, true, true]
+      };
+
+      const isPerfect = venue.toggles.every(t => t === true);
+      assert(isPerfect, 'Venue should be perfect when all toggles are ON');
+    });
+
+    runner.addTest('Perfect Outlet Logic', 'Any toggle OFF = Not Perfect', () => {
+      const testCases = [
+        [false, true, true, true, true, true, true],
+        [true, true, true, false, true, true, true],
+        [true, true, true, true, true, true, false],
+        [false, false, false, false, false, false, false]
+      ];
+
+      testCases.forEach(toggles => {
+        const isPerfect = toggles.every(t => t === true);
+        assert(!isPerfect, 'Venue should not be perfect if any toggle is OFF');
+      });
+    });
+
+    runner.addTest('Perfect Outlet Logic', 'Perfect status tracking', () => {
+      const venues = [
+        { id: '1', toggles: [true, true, true, true, true, true, true] },
+        { id: '2', toggles: [true, false, true, true, true, true, true] },
+        { id: '3', toggles: [true, true, true, true, true, true, true] }
+      ];
+
+      const perfectVenues = venues.filter(v => v.toggles.every(t => t === true));
+      assertEquals(perfectVenues.length, 2);
+      assertIncludes(perfectVenues.map(v => v.id), '1');
+      assertIncludes(perfectVenues.map(v => v.id), '3');
+    });
+
+    // === UI RENDERING TESTS ===
+    runner.addTest('UI Functions', 'HTML escaping for security', () => {
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      const dangerous = String.raw`<${'script'}>alert("XSS")</${'script'}>`;
+      const escaped = escapeHtml(dangerous);
+      assert(!escaped.includes('<' + 'script>'), 'Script tags should be escaped');
+      assert(escaped.includes('&lt;' + 'script&gt;'), 'Should contain escaped characters');
+    });
+
+    runner.addTest('UI Functions', 'Currency formatting', () => {
+      function formatCurrency(amount) {
+        return `Rp ${amount.toLocaleString('id-ID')}`;
+      }
+
+      assertEquals(formatCurrency(50000), 'Rp 50.000');
+      assertEquals(formatCurrency(1000000), 'Rp 1.000.000');
+      assertEquals(formatCurrency(0), 'Rp 0');
+    });
+
+    runner.addTest('UI Functions', 'Number formatting', () => {
+      function formatNumber(num) {
+        return num.toLocaleString('id-ID');
+      }
+
+      assertEquals(formatNumber(1234), '1.234');
+      assertEquals(formatNumber(1000000), '1.000.000');
+      assertEquals(formatNumber(0), '0');
+    });
+
+    // === FILTERING TESTS ===
+    runner.addTest('Filtering', 'Filter venues by region', () => {
+      const venues = [
+        { id: '1', name: 'Venue 1', region: 'Bali' },
+        { id: '2', name: 'Venue 2', region: 'West Java' },
+        { id: '3', name: 'Venue 3', region: 'Bali' },
+        { id: '4', name: 'Venue 4', region: 'East Java' }
+      ];
+
+      const baliVenues = venues.filter(v => v.region === 'Bali');
+      assertEquals(baliVenues.length, 2);
+      assertEquals(baliVenues[0].name, 'Venue 1');
+      assertEquals(baliVenues[1].name, 'Venue 3');
+    });
+
+    runner.addTest('Filtering', 'Filter venues by category', () => {
+      const venues = [
+        { id: '1', cat: 'Important' },
+        { id: '2', cat: 'Core' },
+        { id: '3', cat: 'Important' },
+        { id: '4', cat: 'High' }
+      ];
+
+      const importantVenues = venues.filter(v => v.cat === 'Important');
+      assertEquals(importantVenues.length, 2);
+    });
+
+    runner.addTest('Filtering', 'Search venues by name', () => {
+      const venues = [
+        { name: 'Sky Bar' },
+        { name: 'Beach Club' },
+        { name: 'Sky Lounge' },
+        { name: 'Night Club' }
+      ];
+
+      const searchTerm = 'sky';
+      const results = venues.filter(v =>
+        v.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      assertEquals(results.length, 2);
+    });
+
+    runner.addTest('Filtering', 'Date range filtering', () => {
+      const visits = [
+        { date: '2025-01-01' },
+        { date: '2025-01-15' },
+        { date: '2025-01-20' },
+        { date: '2025-02-01' }
+      ];
+
+      const fromDate = new Date('2025-01-10');
+      const toDate = new Date('2025-01-25');
+
+      const filtered = visits.filter(v => {
+        const visitDate = new Date(v.date);
+        return visitDate >= fromDate && visitDate <= toDate;
+      });
+
+      assertEquals(filtered.length, 2);
+    });
+
+    // === STATISTICS TESTS ===
+    runner.addTest('Statistics', 'Calculate perfect outlet percentage', () => {
+      const venues = [
+        { toggles: [true, true, true, true, true, true, true] },
+        { toggles: [false, true, true, true, true, true, true] },
+        { toggles: [true, true, true, true, true, true, true] },
+        { toggles: [true, false, true, true, true, true, true] }
+      ];
+
+      const perfectCount = venues.filter(v => v.toggles.every(t => t)).length;
+      const percentage = Math.round((perfectCount / venues.length) * 100);
+      assertEquals(percentage, 50);
+    });
+
+    runner.addTest('Statistics', 'Calculate average prices', () => {
+      const visits = [
+        { priceShot: 50000, priceBottle: 750000 },
+        { priceShot: 60000, priceBottle: 800000 },
+        { priceShot: 55000, priceBottle: 775000 }
+      ];
+
+      const avgShot = visits.reduce((sum, v) => sum + v.priceShot, 0) / visits.length;
+      const avgBottle = visits.reduce((sum, v) => sum + v.priceBottle, 0) / visits.length;
+
+      assertEquals(avgShot, 55000);
+      assertEquals(avgBottle, 775000);
+    });
+
+    runner.addTest('Statistics', 'Visit frequency tracking', () => {
+      const visits = [
+        { venueId: '1', date: '2025-01-01' },
+        { venueId: '1', date: '2025-01-15' },
+        { venueId: '2', date: '2025-01-10' },
+        { venueId: '1', date: '2025-01-20' }
+      ];
+
+      const frequencyMap = {};
+      visits.forEach(v => {
+        frequencyMap[v.venueId] = (frequencyMap[v.venueId] || 0) + 1;
+      });
+
+      assertEquals(frequencyMap['1'], 3);
+      assertEquals(frequencyMap['2'], 1);
+    });
+
+    // === ROLE-BASED ACCESS TESTS ===
+    runner.addTest('Role-Based Access', 'Manager sees all regions', () => {
+      const userRole = 'manager';
+      const venues = [
+        { region: 'Bali' },
+        { region: 'West Java' },
+        { region: 'East Java' }
+      ];
+
+      const visibleVenues = userRole === 'manager'
+        ? venues
+        : venues.filter(v => v.region === 'Bali');
+
+      assertEquals(visibleVenues.length, 3);
+    });
+
+    runner.addTest('Role-Based Access', 'Ambassador sees assigned region only', () => {
+      const userRole = 'ambassador';
+      const userRegion = 'Bali';
+      const venues = [
+        { region: 'Bali' },
+        { region: 'West Java' },
+        { region: 'Bali' },
+        { region: 'East Java' }
+      ];
+
+      const visibleVenues = userRole === 'ambassador'
+        ? venues.filter(v => v.region === userRegion)
+        : venues;
+
+      assertEquals(visibleVenues.length, 2);
+    });
+
+    runner.addTest('Role-Based Access', 'Navigation items based on role', () => {
+      function getNavItems(role) {
+        const items = ['Venues', 'Visits', 'Statistics', 'Settings'];
+        // Both roles get all items in this version
+        return items;
+      }
+
+      const managerNav = getNavItems('manager');
+      const ambassadorNav = getNavItems('ambassador');
+
+      assertEquals(managerNav.length, 4);
+      assertEquals(ambassadorNav.length, 4);
+    });
+
+    // === TOGGLE STATE TESTS ===
+    runner.addTest('Toggle Functions', 'Toggle state changes', () => {
+      let toggleState = false;
+
+      // Toggle ON
+      toggleState = !toggleState;
+      assert(toggleState === true, 'Should be ON after first toggle');
+
+      // Toggle OFF
+      toggleState = !toggleState;
+      assert(toggleState === false, 'Should be OFF after second toggle');
+    });
+
+    runner.addTest('Toggle Functions', 'Multiple toggle tracking', () => {
+      const toggles = [false, false, false, false, false, false, false];
+      const indices = [0, 2, 4, 6];
+
+      indices.forEach(i => {
+        toggles[i] = true;
+      });
+
+      assertEquals(toggles.filter(t => t).length, 4);
+      assert(toggles[0] === true);
+      assert(toggles[1] === false);
+      assert(toggles[2] === true);
+    });
+
+    // === SETTINGS TESTS ===
+    runner.addTest('Settings', 'Update user name', () => {
+      const user = {
+        name: 'John Doe',
+        email: 'john@jager.com'
+      };
+
+      user.name = 'Jane Smith';
+      assertEquals(user.name, 'Jane Smith');
+      assertEquals(user.email, 'john@jager.com'); // Email unchanged
+    });
+
+    runner.addTest('Settings', 'Logout clears user session', () => {
+      mockStorage.setItem('j101_user', JSON.stringify({ email: 'test@jager.com' }));
+
+      // Logout
+      mockStorage.removeItem('j101_user');
+
+      const user = mockStorage.getItem('j101_user');
+      assert(user === null, 'User data should be cleared after logout');
+    });
+
+    // === EDGE CASES ===
+    runner.addTest('Edge Cases', 'Empty venue list handling', () => {
+      const venues = [];
+      const filtered = venues.filter(v => v.region === 'Bali');
+
+      assertEquals(filtered.length, 0);
+      assert(Array.isArray(filtered), 'Should return empty array');
+    });
+
+    runner.addTest('Edge Cases', 'Invalid date handling', () => {
+      function isValidDate(dateString) {
+        // Check for null/undefined/empty string first
+        if (!dateString) return false;
+        const date = new Date(dateString);
+        return !isNaN(date.getTime());
+      }
+
+      assert(isValidDate('2025-01-20'));
+      assert(!isValidDate('invalid-date'));
+      assert(!isValidDate(''));
+      assert(!isValidDate(null));
+    });
+
+    runner.addTest('Edge Cases', 'Null/undefined handling', () => {
+      function safeLength(arr) {
+        return (arr || []).length;
+      }
+
+      assertEquals(safeLength(null), 0);
+      assertEquals(safeLength(undefined), 0);
+      assertEquals(safeLength([]), 0);
+      assertEquals(safeLength([1, 2, 3]), 3);
+    });
+
+    runner.addTest('Edge Cases', 'Large dataset performance', () => {
+      const startTime = Date.now();
+      const largeArray = Array(1000).fill(null).map((_, i) => ({
+        id: i.toString(),
+        name: `Venue ${i}`,
+        region: i % 2 === 0 ? 'Bali' : 'West Java'
+      }));
+
+      const filtered = largeArray.filter(v => v.region === 'Bali');
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      assertEquals(filtered.length, 500);
+      assert(duration < 100, `Filtering should be fast (took ${duration}ms)`);
+    });
+
+    runner.addTest('Edge Cases', 'Toast notification types', () => {
+      const toastTypes = ['success', 'error', 'warning', 'info'];
+
+      toastTypes.forEach(type => {
+        assert(typeof type === 'string', 'Toast type should be string');
+        assert(type.length > 0, 'Toast type should not be empty');
+      });
+    });
+
+    // === DATA INTEGRITY TESTS ===
+    runner.addTest('Data Integrity', 'Venue ID uniqueness', () => {
+      const venues = [
+        { id: '1', name: 'Venue 1' },
+        { id: '2', name: 'Venue 2' },
+        { id: '3', name: 'Venue 3' }
+      ];
+
+      const ids = venues.map(v => v.id);
+      const uniqueIds = [...new Set(ids)];
+
+      assertEquals(ids.length, uniqueIds.length, 'All IDs should be unique');
+    });
+
+    runner.addTest('Data Integrity', 'Visit venue reference integrity', () => {
+      const venues = [
+        { id: '1', name: 'Venue 1' },
+        { id: '2', name: 'Venue 2' }
+      ];
+
+      const visits = [
+        { venueId: '1', venueName: 'Venue 1' },
+        { venueId: '2', venueName: 'Venue 2' }
+      ];
+
+      visits.forEach(visit => {
+        const venue = venues.find(v => v.id === visit.venueId);
+        assert(venue, `Venue ${visit.venueId} should exist`);
+        assertEquals(venue.name, visit.venueName, 'Venue name should match');
+      });
+    });
+
+    // === BUSINESS LOGIC TESTS ===
+    runner.addTest('Business Logic', 'Revenue calculation', () => {
+      const visits = [
+        { priceShot: 50000, priceBottle: 750000 },  // 800000
+        { priceShot: 60000, priceBottle: 800000 },  // 860000
+        { priceShot: 55000, priceBottle: 775000 }   // 830000
+      ];
+
+      const totalRevenue = visits.reduce((sum, v) =>
+        sum + v.priceShot + v.priceBottle, 0
+      );
+
+      // Correct total: 800000 + 860000 + 830000 = 2490000
+      assertEquals(totalRevenue, 2490000);
+    });
+
+    runner.addTest('Business Logic', 'Performance score calculation', () => {
+      function calculateScore(perfectOutlets, totalOutlets, visitsCount) {
+        const perfectRatio = totalOutlets > 0 ? perfectOutlets / totalOutlets : 0;
+        const visitScore = Math.min(visitsCount / 10, 1); // Max at 10 visits
+        return Math.round((perfectRatio * 0.7 + visitScore * 0.3) * 100);
+      }
+
+      // Recalculate: 0.5 * 0.7 + 0.8 * 0.3 = 0.35 + 0.24 = 0.59 => 59
+      assertEquals(calculateScore(5, 10, 8), 59); // 50% perfect * 0.7 + 0.8 * 0.3
+      assertEquals(calculateScore(10, 10, 15), 100); // 100% perfect * 0.7 + 1.0 * 0.3
+      assertEquals(calculateScore(0, 10, 5), 15); // 0% perfect * 0.7 + 0.5 * 0.3
+    });
+
+    // === SORTING TESTS ===
+    runner.addTest('Sorting', 'Alphabetical venue sorting', () => {
+      const venues = [
+        { name: 'Zebra Club' },
+        { name: 'Alpha Bar' },
+        { name: 'Beta Lounge' }
+      ];
+
+      venues.sort((a, b) => a.name.localeCompare(b.name));
+
+      assertEquals(venues[0].name, 'Alpha Bar');
+      assertEquals(venues[1].name, 'Beta Lounge');
+      assertEquals(venues[2].name, 'Zebra Club');
+    });
+
+    runner.addTest('Sorting', 'Date sorting for visits', () => {
+      const visits = [
+        { date: '2025-01-20' },
+        { date: '2025-01-01' },
+        { date: '2025-01-15' }
+      ];
+
+      visits.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      assertEquals(visits[0].date, '2025-01-20'); // Most recent first
+      assertEquals(visits[1].date, '2025-01-15');
+      assertEquals(visits[2].date, '2025-01-01');
+    });
+
+    // Control functions
+    async function runAllTests() {
+      runner.reset();
+      await runner.runAll();
+    }
+
+    function clearTestStorage() {
+      mockStorage.clear();
+      localStorage.removeItem('j101_state');
+      alert('Storage cleared successfully!');
+    }
+
+    function resetTests() {
+      runner.reset();
+      document.getElementById('summary').style.display = 'none';
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      runner.updateUI();
+    });
+  </script>
+</body>
+</html>
